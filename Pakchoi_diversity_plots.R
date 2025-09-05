@@ -12,7 +12,7 @@ unique(data$Farm_name)
 unique(data$Season)
 unique(data$`Farm type`)
 
-data<-read_excel('Eddy Pie chart short.xlsx',sheet='Pies data pak choi surveys')
+data<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Copy of Pak choi pollinators Heather analysis Brad update.xlsx',sheet='DataSheet')
 brads_col_2<-read_excel('Eddy Pie chart short.xlsx',sheet='Colours')
 head(brads_col_2)
 head(data)
@@ -28,8 +28,8 @@ data$Boundary_descriptor<-gsub('Bare_fence','Bare fence',data$Boundary_descripto
 data$Boundary_descriptor<-gsub('Control_farm','Control farm',data$Boundary_descriptor)
 
 
-#there is a few duplicate rows getting rid of the counts here, summarizing across and summing counts
-data<-data %>% group_by(`Farm type`,Farm_name,Season,Boundary_descriptor,`Insect key number`,`New Inseck key name`) %>% summarise(`Sum of Insects/100 flowers`=sum(`Sum of Insects/100 flowers`) )
+#summarising across etc
+data<-data %>% select(-`Broad Insect category`,-Origin,-`Boundary age`) %>% group_by(`Farm type`,Farm_name,Season,Boundary_descriptor,`Insect key number`,`New Inseck key name`) %>% summarise(`Sum of Insects/100 flowers`=sum(`Sum of Insects/100 flowers`) )
 
 data_per<-data%>% mutate(Boundary_year=paste0(Boundary_descriptor,'_',Season)) %>% select(-`Insect key number`,-Boundary_descriptor,-Season) %>% group_by(`Farm type`,Farm_name,Boundary_year,`New Inseck key name`) %>% summarise(total_count=sum(`Sum of Insects/100 flowers`)) %>% ungroup() %>% group_by(`Farm type`,Farm_name,Boundary_year) %>% mutate(per=100*total_count/sum(total_count)) %>% ungroup()
 

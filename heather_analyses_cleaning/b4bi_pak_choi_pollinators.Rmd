@@ -1,0 +1,1239 @@
+---
+title: "B4BI Pak Choi Pollinator Data Graphs and Models"
+author: "Heather Jenkins"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: 
+    toc: true  
+    toc_depth: 3  
+    toc_float: true
+---
+
+<!-- output: -->
+<!--   word_document: -->
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=6, dpi=300, warning=FALSE, message=FALSE, echo=FALSE)
+options(scipen=999)
+library(lme4)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(dplyr)
+library(car)
+library(emmeans)
+library(predictmeans)
+library(stringr)
+library(GGally)
+library(gridExtra)
+library(pander)
+library(kableExtra)
+library(DHARMa)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'left', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+options(knitr.kable.NA = '')
+```
+
+
+# Overview
+
+This document contains visualisation and analysis of data 
+in **Pak choi pollinators raw visits Brad correctedupdatedHeatherxlsx (002).xlsx** which was previously cleaned.
+
+<br>
+
+This analysis was performed using  `r version$version.string`. The *tidyverse*
+suite of packages was used for data manipulation and visualisation. The
+*emmeans* package was used for model predictions.
+
+# Questions from Brad
+
+1. How does the presence and age of native SNH influence pollinator diversity (species richness and evenness  and seed yield on exotic crop plants compared to bare fence lines on farms with the SNH (distance >400m from SNH) and bare-fence-lines on farms without SNH?
+
+2. Does farm type influence pollinator abundance and species composition and resulting seed yields?
+
+3. Does visitation differ between exotic or native species, or between bees and flies in relation to farm type or the presence of native plantings? Does this influence seed yield?
+
+# Data loaded
+
+The cleaned data is loaded.
+
+<br>
+
+```{r}
+load(file="Cleaned_datasets/pc_pollinator_data_cleaned.rda")
+str(pc_pol)
+```
+
+# Raw mean table
+
+The data is summarised by taking the means for each insect, ignoring the
+treatments etc so we can get a feel for the numbers for each of the 51 insects.
+
+<br>
+
+```{r}
+pc_sum <- pc_pol %>% group_by(new_insect_key_name, broad_insect_category, origin) %>% 
+  summarise(Mean_count_per_100_flowers=mean(sum_of_insects_100_flowers))# %>% ungroup()
+
+pc_sum %>% arrange(desc(Mean_count_per_100_flowers)) %>% kable(format="pandoc", digits=3)
+```
+
+# Raw mean graphs
+
+## Broad insect category graph with 'full' boundary descriptors
+
+The data is grouped by the broad insect category and the counts are summed, then the mean across the 
+farm type, season and boundary descriptor is taken. These numbers are graphed.
+
+
+```{r}
+pc_sum <- pc_pol %>% group_by(farm_type, farm_name, season, boundary_descriptor, boundary_alt, broad_insect_category) %>% 
+  summarise(sum_of_insects_100_flowers=sum(sum_of_insects_100_flowers)) %>% ungroup()
+
+pc_plot <- pc_sum %>% group_by(farm_type, season, boundary_descriptor, broad_insect_category) %>% 
+  summarise(sum_of_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>% ungroup()
+```
+
+```{r}
+pc_plot %>% 
+  ggplot(aes(x=boundary_descriptor, y=sum_of_insects_100_flowers, fill=boundary_descriptor)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type:broad_insect_category) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title="Broad insect category numbers by farm type, season and treatment")
+```
+
+
+## Origin category graph with 'full' boundary descriptors
+
+The data is grouped by the origin category and the counts are summed, then the mean across the 
+farm type, season and boundary descriptor is taken. These numbers are graphed.
+
+
+```{r}
+pc_sum2 <- pc_pol %>% group_by(farm_type, farm_name, season, boundary_descriptor, boundary_alt, origin) %>% 
+  summarise(sum_of_insects_100_flowers=sum(sum_of_insects_100_flowers)) %>% ungroup()
+
+pc_plot <- pc_sum2 %>% group_by(farm_type, season, boundary_descriptor, origin) %>% 
+  summarise(sum_of_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>% ungroup()
+```
+
+
+```{r}
+pc_plot %>% 
+  ggplot(aes(x=boundary_descriptor, y=sum_of_insects_100_flowers, fill=boundary_descriptor)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type:origin) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title="Origin insect category numbers by farm type, season and treatment")
+```
+
+## Broad insect category graph with 'new' boundary descriptors
+
+The new boundary descriptor has the "1-3 year old" categories. collapsed into
+single category called New. Most of the time "One year old" is in 2021/22, "Two
+year old" is in 2022/23 and "Three year old" is in 2023/24.
+
+<br>
+
+In the first graph below, observations from the same farm are joined by a line.
+
+```{r, fig.height=7.5}
+pc_sum %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:broad_insect_category) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title="Broad insect category numbers by farm type and treatment across seasons",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+```{r}
+pc_plot <- pc_sum %>% group_by(farm_type, season, boundary_alt, broad_insect_category) %>% 
+  summarise(sum_of_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>% ungroup()
+```
+
+```{r}
+pc_plot %>% 
+  ggplot(aes(x=boundary_alt, y=sum_of_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type:broad_insect_category) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title="Broad insect category numbers by farm type, season and treatment") +
+  scale_fill_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+
+## Origin category graph with 'new' boundary descriptors
+
+In the first graph below, observations from the same farm are joined by a line.
+
+<br>
+
+```{r, fig.height=7.5}
+pc_sum2 %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:origin) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title="Origin category numbers by farm type and treatment across seasons",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+```{r}
+pc_plot <- pc_sum2 %>% group_by(farm_type, season, boundary_alt, origin) %>% 
+  summarise(sum_of_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>% ungroup()
+```
+
+
+```{r}
+# str(pc_sum)
+pc_plot %>% 
+  ggplot(aes(x=boundary_alt, y=sum_of_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type:origin) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title="Origin insect category numbers by farm type, season and treatment") +
+  scale_fill_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+# Remove data before modelling
+
+We remove the six observations where 2023/24 is One/Two year old. This means that the category "new" just has 
+
+<br>
+
++ "One year old" in 2021/22  
++ "Two year old" in 2022/23  
++ "Three year old" in 2023/24  
+
+<br>
+
+(If we don't want to interpret anything to do with how "new" the plantings are,
+we can include this data. Let me know if this is the case.)
+
+```{r}
+# table(pc_sum$season, pc_sum$boundary_descriptor)
+# table(pc_sum2$season, pc_sum2$boundary_descriptor)
+
+pc_mod <- pc_sum %>% 
+  filter( !(season=="2023/24" & boundary_descriptor=="One year old") ) %>%
+  filter( !(season=="2023/24" & boundary_descriptor=="Two year old") )
+
+pc_mod2 <- pc_sum2 %>% 
+  filter( !(season=="2023/24" & boundary_descriptor=="One year old") ) %>%
+  filter( !(season=="2023/24" & boundary_descriptor=="Two year old") )
+```
+
+# Modelling using the broad insect categories
+
+## Insects per 100 flowers
+
+```{r, eval=FALSE}
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt + (1|season) + (1|farm_name/boundary_alt), data=pc_mod)
+# AIC(pc.lm); BIC(pc.lm) # Model is singular boundary_alt is 'zero'
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt + (1|season) + (boundary_alt|farm_name), data=pc_mod)
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt + (1|season) + (1|farm_name), data=pc_mod)
+# AIC(pc.lm); BIC(pc.lm) 
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt * season + (1|season) + (1|farm_name), data=pc_mod) # did not converge
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt * season + (1|farm_name), data=pc_mod) # singular
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * boundary_alt + season + (1|farm_name), data=pc_mod) # 
+# AIC(pc.lm); BIC(pc.lm) 
+# pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * season + boundary_alt + (1|farm_name), data=pc_mod) # 
+# AIC(pc.lm); BIC(pc.lm) 
+# pc.lm <- lm(log(sum_of_insects_100_flowers+1) ~ farm_type * season + boundary_alt, data=pc_mod) # 
+# AIC(pc.lm); BIC(pc.lm) 
+pc.lm <- lm(log(sum_of_insects_100_flowers+1) ~ farm_type + season + boundary_alt, data=pc_mod) # 
+AIC(pc.lm); BIC(pc.lm) 
+# pc.lm <- lm(log(sum_of_insects_100_flowers+1) ~ farm_type + season * boundary_alt, data=pc_mod) # 
+# AIC(pc.lm); BIC(pc.lm) 
+# pc.lm <- lmer(sqrt(sum_of_insects_100_flowers) ~ farm_type + season + boundary_alt + (1|farm_name), data=pc_mod) # 
+# pc.lm <- lm(sqrt(sum_of_insects_100_flowers) ~ farm_type + season + boundary_alt, data=pc_mod) # 
+pc.lm <- lm(sqrt(sum_of_insects_100_flowers) ~ farm_type * broad_insect_category * season * boundary_alt, data=pc_mod) # 
+pc.lm <- lmer(sqrt(sum_of_insects_100_flowers) ~ farm_type * broad_insect_category * season * boundary_alt + (1|farm_name), data=pc_mod) # 
+ AIC(pc.lm); BIC(pc.lm) 
+pc.lm <- lmer(log(sum_of_insects_100_flowers+1) ~ farm_type * broad_insect_category * boundary_alt + 
+                season * broad_insect_category + 
+                season * farm_type + 
+                (1|farm_name), data=pc_mod) # 
+ AIC(pc.lm); BIC(pc.lm) 
+residplot(pc.lm, newwd = FALSE)
+Anova(pc.lm)
+# summary(pc.lm)
+```
+
+<br>
+
+The raw means are given below
+
+<br>
+
+```{r}
+# with(pc_mod, table(sum_of_insects_100_flowers==0, farm_type))
+# with(pc_mod, table(sum_of_insects_100_flowers==0, season))
+# with(pc_mod, table(sum_of_insects_100_flowers==0, broad_insect_category))
+# with(pc_mod, table(sum_of_insects_100_flowers==0, boundary_alt))
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season, broad_insect_category) %>% 
+  summarise(mean=round(mean(sum_of_insects_100_flowers),2), n=n()) %>%
+  # print(n=72) %>%
+  kable(format="pandoc")
+
+# pc_mod %>% 
+#   group_by(farm_type, boundary_alt, broad_insect_category, season) %>% 
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>%
+#   filter(mean==0)
+```
+
+<br>
+
+It is not possible to model the variability of the combination
+
+**Dairy, Control farm, 2021/22, Honey bees**
+
+because it has a mean of zero. This data is removed from the model.
+
+```{r}
+pc_mod_sub <- pc_mod %>% 
+  filter( !(farm_type=="Dairy" & boundary_alt=="Control farm" & broad_insect_category=="Honey bees" & season=="2021/22") )
+
+pc_mod_sub %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:broad_insect_category) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title="Broad insect category numbers by farm type and treatment across seasons, data used in model",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+We fit a zero-inflated negative binomial generalised linear mixed model.
+The log link function is used. The zero-inflated part of the model has just an
+intercept, the zero-inflation is the same for all the fixed-effect combinations.
+There is also a term in the model to account for over dispersion. The AIC was used to select that. 
+
+The GLMM part of the model has the four-way interaction of 
+farm_type, broad_insect_category, boundary_alt and season
+There is a random effect for boundary_alt:farm_name. 
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * broad_insect_category * boundary_alt * season  + 
+                (1|boundary_alt:farm_name), 
+                ziformula = ~ 1,
+                # dispformula = ~ 1,
+                 # dispformula = ~ broad_insect_category * farm_type + season, 
+                dispformula = ~ season + broad_insect_category + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod_sub)
+# summary(mod.zi)
+# residplot(mod.zi, newwd = FALSE)
+# AIC(mod.zi); BIC(mod.zi)
+ 
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# simres <- simulateResiduals(fittedModel = pc.lm) # Twas bad
+# plot(simres) 
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi)) 
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+Thankfully, the four-way interaction is not significant. We have one three-way interaction to consider
+
+- farm_type:broad_insect_category:boundary_alt  
+
+and two two-way interactions (with season in which is missing from the three-way)
+
+- farm_type:season    
+- broad_insect_category:season  
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, broad_insect_category ~ boundary_alt | farm_type,
+      tlab="Broad insect category",
+      xlab="Boundary type", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(farm_type, broad_insect_category, boundary_alt) %>% summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>% print(n=24)
+# emmeans(mod.zi,  ~ boundary_alt*broad_insect_category*farm_type | farm_type, type="response", adjust = "fdr")
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, broad_insect_category ~ season,
+      tlab="Broad insect category",
+      xlab="Season", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(broad_insect_category, season) %>% 
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>% print(n=24)
+# emmeans(mod.zi,  ~ broad_insect_category*season, type="response", adjust = "fdr")
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, farm_type ~ season,
+      tlab="Farm type",
+      xlab="Season", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(farm_type, season) %>%
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>% print(n=24)
+# emmeans(mod.zi,  ~ farm_type*season, type="response", adjust = "fdr")
+```
+
+## Number of taxa
+
+The data is grouped by the broad insect category and the number of different insects with non-zero counts is calculated.
+These numbers are graphed. The honey bees and wild bees and put together.
+
+<br>
+
+```{r}
+pc_taxa <- pc_pol %>% 
+  mutate(broad_insect_category2=factor(ifelse(broad_insect_category=="Non-bees", "Non-bees", "Bees (honey or wild)"))) %>%
+  group_by(farm_type, farm_name, season, boundary_descriptor, broad_insect_category2) %>% 
+  summarise(no_of_taxa=n_distinct(new_insect_key_name[sum_of_insects_100_flowers !=0])) %>% ungroup() %>%
+  mutate(boundary_descriptor=as.character(boundary_descriptor)) %>%
+  mutate(boundary_alt=factor(ifelse(str_ends(boundary_descriptor, "old"), "New", boundary_descriptor))) %>%
+  mutate(boundary_alt=fct_relevel(boundary_alt, "Control farm", "Bare fence", "Old", "New"))
+
+pc_mod <- pc_taxa %>% 
+  filter( !(season=="2023/24" & boundary_descriptor=="One year old") ) %>%
+  filter( !(season=="2023/24" & boundary_descriptor=="Two year old") )
+
+pc_mod %>%
+  ggplot(aes(x=season, y=no_of_taxa, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:broad_insect_category2) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Number of taxa", 
+       title="Taxa numbers by farm type, broad insect category and treatment across seasons, data used in model",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+We fit a negative binomial generalised linear mixed model.
+The log link function is used. 
+
+The GLMM part of the model has main effects for farm_type,
+broad_insect_category2, boundary_alt and season.
+There is a random effect for boundary_alt:farm_name. 
+
+The model did not converge with the four-way interaction, and the AIC was better with just main effects.
+
+The ANOVA table is:
+
+```{r}
+tax.zi <- glmmTMB(no_of_taxa ~ farm_type + boundary_alt + season + broad_insect_category2 + (1|boundary_alt:farm_name), 
+                  # ziformula = ~1,
+                  # ziformula = ~farm_type + boundary_alt + broad_insect_category + season, 
+                  family=nbinom2(link="log"), data=pc_mod)
+# summary(tax.zi)
+# residplot(tax.zi, newwd = FALSE)
+# AIC(tax.zi); BIC(tax.zi) 
+# simres <- simulateResiduals(fittedModel = tax.zi)
+# plot(simres) 
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(tax.zi))  
+```
+
+<br>
+
+```{r}
+# kable(Anova(tax.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(tax.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+farm_type is not significant, but the other three factors are.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(tax.zi, ~broad_insect_category2,
+      xlab="Broad insect category", 
+      ylab="Predicted number of taxa", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emmip(tax.zi, ~ season,
+      xlab="Season", 
+      ylab="Predicted number of taxa", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emmip(tax.zi, ~ boundary_alt,
+      xlab="Boundary type", 
+      ylab="Predicted number of taxa", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+# pc_mod %>% group_by(broad_insect_category2) %>% summarise(mean_no_of_taxa=mean(no_of_taxa))
+# pc_mod %>% group_by(season) %>% summarise(mean_no_of_taxa=mean(no_of_taxa))
+# pc_mod %>% group_by(boundary_alt) %>% summarise(mean_no_of_taxa=mean(no_of_taxa))
+# emmeans(tax.zi, ~broad_insect_category2, type="response", CIs=TRUE, adjust="fdr")
+# emmeans(tax.zi, ~season, type="response", CIs=TRUE, adjust="fdr")
+# emmeans(tax.zi, ~boundary_alt, type="response", CIs=TRUE, adjust="fdr")
+```
+
+# Modelling using the origin insect categories
+
+## Insects per 100 flowers
+
+The raw means are given below
+
+<br>
+
+```{r}
+pc_mod2 %>% 
+  group_by(farm_type, boundary_alt, season, origin) %>% 
+  summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>%
+  kable(format="pandoc", digits=2)
+
+# pc_mod %>%
+#   group_by(farm_type, boundary_alt, origin, season) %>%
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>%
+#   filter(mean==0)
+```
+
+<br>
+
+It is not possible to model the variability of the combinations
+
+- **Arable, Bare fence, Both, 2021/22**  
+- **Arable, Control farm, Both, 2022/23**  
+
+<br>
+
+because the data has a mean of zero. We remove all the "Both" data from the model.
+
+<br>
+
+```{r}
+pc_mod_sub <- pc_mod2 %>% 
+  filter( origin!="Both" ) %>% droplevels()
+
+pc_mod_sub %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:origin) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title="Origin insect category numbers by farm type and treatment across seasons, data used in model",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+We fit a negative binomial generalised linear mixed model.
+The log link function is used. 
+The model has the four-way interaction of farm_type, origin, boundary_alt and
+season. There is a random effect for boundary_alt:farm_name.
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * origin * boundary_alt * season  + 
+                (1|boundary_alt:farm_name), 
+                family = nbinom2(link="log"), data = pc_mod_sub)
+# summary(mod.zi)
+# residplot(mod.zi, newwd = FALSE)
+# AIC(mod.zi); BIC(mod.zi)
+ 
+ # simres <- simulateResiduals(fittedModel = mod.zi)
+ # plot(simres)
+ # testDispersion(simres)
+ # testZeroInflation(simulateResiduals(mod.zi))
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The four-way interaction is not significant. None of the three-way interactions are significant. We have four two-way interactions to consider
+
+- boundary_alt:season  
+- farm_type:season   
+- origin:boundary_alt   
+- farm_type:origin   
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, boundary_alt ~ season,
+      tlab="Boundary type",
+      xlab="Season", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+
+emmip(mod.zi, farm_type ~ season,
+      tlab="Farm type",
+      xlab="Season", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+
+emmip(mod.zi, origin ~ boundary_alt,
+      tlab="Origin",
+      xlab="Boundary type", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+
+emmip(mod.zi, farm_type ~ origin,
+      tlab="Farm type",
+      xlab="Origin", 
+      ylab="Predicted number of insects per 100 flowers", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() +
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+```
+
+## Number of taxa
+
+The data is grouped by the origin insect category and the number of different insects with non-zero counts is calculated.
+We remove the "both" category because there too many zeros for modelling.
+
+```{r}
+# with(pc_new, table(new_insect_key_name, broad_insect_category))
+# pc_new %>%  group_by(broad_insect_category) %>% 
+#   summarise(no_of_taxa=n_distinct(new_insect_key_name)) %>% ungroup()
+
+pc_taxa <- pc_pol %>% 
+  group_by(farm_type, farm_name, season, boundary_descriptor, origin) %>% 
+  summarise(no_of_taxa=n_distinct(new_insect_key_name[sum_of_insects_100_flowers !=0])) %>% ungroup() %>%
+  mutate(boundary_descriptor=as.character(boundary_descriptor)) %>%
+  mutate(boundary_alt=factor(ifelse(str_ends(boundary_descriptor, "old"), "New", boundary_descriptor))) %>%
+  mutate(boundary_alt=fct_relevel(boundary_alt, "Control farm", "Bare fence", "Old", "New"))
+
+pc_mod <- pc_taxa %>% 
+  filter( !(season=="2023/24" & boundary_descriptor=="One year old") ) %>%
+  filter( !(season=="2023/24" & boundary_descriptor=="Two year old") )
+
+pc_mod_sub <- pc_mod %>% 
+  filter( origin!="Both" ) %>% droplevels()
+
+pc_mod_sub %>%
+  ggplot(aes(x=season, y=no_of_taxa, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type:origin) + theme_bw() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Number of taxa", 
+       title="Taxa numbers by farm type, origin insect category and treatment across seasons, data used in model",
+       color="Boundary") +
+  scale_color_manual(values=c("#F8766D", "#B79F00", "#00BA38", "#C77CFF"))
+```
+
+We fit a negative binomial generalised linear mixed model.
+The log link function is used. 
+
+The model has main effects for farm_type, broad_insect_category2, boundary_alt
+and season plus the two-way interaction between farm_type and season.
+There is a random effect for boundary_alt:farm_name. 
+
+The model has a parameterised dispersion structure using season.
+
+The model did not converge with additional terms. 
+
+The ANOVA table is:
+
+```{r}
+tax.zi <- glmmTMB(no_of_taxa ~ farm_type * season  + boundary_alt + origin + (1|boundary_alt:farm_name), 
+                  # ziformula = ~1,
+                  # dispformula = ~ season + boundary_alt + farm_type + origin,
+                  dispformula = ~ season,
+                  family=nbinom2(link="log"), data=pc_mod_sub)
+# summary(tax.zi)
+# residplot(tax.zi, newwd = FALSE)
+# AIC(tax.zi); BIC(tax.zi)
+# simres <- simulateResiduals(fittedModel = tax.zi)
+# plot(simres) 
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(tax.zi))  
+```
+
+<br>
+
+```{r}
+# kable(Anova(tax.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(tax.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The two-way interaction farm_type: season is significant, as are the main effects for origin and boundary_alt.
+
+<br>
+
+```{r, fig.height=4}
+emmip(tax.zi, farm_type ~ season,
+      xlab="Season", 
+      ylab="Predicted number of taxa", 
+      xlab="Farm type",
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+```
+
+```{r, fig.height=2.5}
+emmip(tax.zi, ~origin,
+      xlab="Origin insect category", 
+      ylab="Predicted number of taxa", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emmip(tax.zi, ~ boundary_alt,
+      xlab="Boundary type", 
+      ylab="Predicted number of taxa", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+```
+
+```{r}
+rm(mod.zi, tax.zi, pc_taxa, pc_sum, pc_sum2, pc_mod, pc_mod_sub, pc_plot, pc_mod2)
+```
+
+# Modelling the numbers of five individual insects (those that were more abundant than honey bees)
+
+```{r}
+model_individually <- pc_pol %>% 
+  group_by(new_insect_key_name) %>% 
+  summarise(Mean_count_per_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  filter(Mean_count_per_100_flowers > 0.98) %>% 
+  dplyr::select(new_insect_key_name) %>% remove_rownames() 
+  
+model_individually <- model_individually$new_insect_key_name %>% as.vector()
+```
+
+The following were more abundant on average than honey bees: `r model_individually`.
+
+```{r}
+pc_sub <- pc_pol %>% 
+  filter(new_insect_key_name %in% model_individually) %>% 
+  filter( !(season=="2023/24" & boundary_descriptor=="One year old") ) %>%
+  filter( !(season=="2023/24" & boundary_descriptor=="Two year old") ) %>%
+  droplevels()
+
+rm(model_individually, pc_pol)
+```
+
+In the five models below zero-inflation and dispersion were considered when
+fitting the models. The AIC and BIC were looked at in conjunction with
+simulateResiduals and other functions from the DHARMa package were used. In each
+case the model was "better" (or no worse) without additional terms.
+
+## Lasioglossum bees
+
+```{r}
+individual_insect <- "Lasioglossum bee"
+individual_insects <- "Lasioglossum bees"
+
+pc_mod <- pc_sub %>% filter(new_insect_key_name == individual_insect) %>% droplevels()
+```
+
+### Graphs of raw means and data used in model
+
+```{r}
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season) %>%
+  summarise(mean_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  ggplot(aes(x=boundary_alt, y=mean_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type) + theme_bw() +
+  theme(text = element_text(size = 11)) + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title=paste(individual_insect, "numbers by farm type, season and treatment"))
+
+pc_mod %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type) + theme_bw() +
+  theme(text = element_text(size = 10)) + 
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title= paste(individual_insect, "numbers by farm type and treatment across seasons, data used in model"),
+       color="Boundary")
+```
+
+### Model
+
+We fit a negative binomial generalised linear mixed model. The log link function
+is used. The model has the three-way interaction of farm_type, boundary_alt and
+season. There is a random effect for boundary_alt:farm_name.
+
+<br>
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * boundary_alt * season  + 
+                (1|boundary_alt:farm_name), 
+                # ziformula = ~ 1,
+                # dispformula = ~ 1,
+                #dispformula = ~ season + farm_type + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod)
+#  summary(mod.zi)
+#  residplot(mod.zi, newwd = FALSE)
+#  AIC(mod.zi); BIC(mod.zi)
+#  
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# plot(simres) 
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi)) 
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+There are two two-way interactions to consider
+
+- farm_type:season    
+- farm_type:boundary_alt  
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, farm_type ~ season,
+      tlab="Farm type",
+      xlab="", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(farm_type, season) %>%
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>% arrange(boundary_alt)
+# emmeans(mod.zi,  ~ farm_type*season, type="response", adjust = "fdr")
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, farm_type ~ boundary_alt,
+      tlab="Farm type",
+      xlab="Boundary type", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(farm_type, boundary_alt) %>%
+#   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) %>% arrange(boundary_alt)
+# emmeans(mod.zi,  ~ farm_type*boundary_alt, type="response", adjust = "fdr")
+```
+
+## Drone fly
+
+```{r}
+individual_insect <- "Drone fly"
+individual_insects <- "Drone flies"
+
+pc_mod <- pc_sub %>% filter(new_insect_key_name == individual_insect) %>% droplevels()
+```
+
+### Graphs of raw means and data used in model
+
+```{r}
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season) %>%
+  summarise(mean_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  ggplot(aes(x=boundary_alt, y=mean_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type) + theme_bw() +
+  theme(text = element_text(size = 11)) + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title=paste(individual_insect, "numbers by farm type, season and treatment"))
+
+pc_mod %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type) + theme_bw() +
+  theme(text = element_text(size = 10)) + 
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title= paste(individual_insect, "numbers by farm type and treatment across seasons, data used in model"),
+       color="Boundary")
+```
+
+### Model
+
+We fit a negative binomial generalised linear mixed model. The log link function
+is used. The model has the three-way interaction of farm_type, boundary_alt and
+season. There is a random effect for boundary_alt:farm_name.
+
+<br>
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * boundary_alt * season  + 
+                (1|boundary_alt:farm_name), 
+                # ziformula = ~ 1,
+                # dispformula = ~ 1,
+                #dispformula = ~ season + farm_type + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod)
+#  summary(mod.zi)
+#  residplot(mod.zi, newwd = FALSE)
+#  AIC(mod.zi); BIC(mod.zi)
+# 
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# plot(simres)
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi))
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The main effect for season is the only significant term.
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ season,
+      xlab="", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+ # pc_mod %>% group_by(season) %>%
+ #   summarise(mean=mean(sum_of_insects_100_flowers), n=n()) 
+# emmeans(mod.zi,  ~ farm_type*season, type="response", adjust = "fdr")
+```
+
+## NZ orange hover fly
+
+```{r}
+individual_insect <- "NZ orange hover fly"
+individual_insects <- "NZ orange hover flies"
+
+pc_mod <- pc_sub %>% filter(new_insect_key_name == individual_insect) %>% droplevels()
+```
+
+### Graphs of raw means and data used in model
+
+```{r}
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season) %>%
+  summarise(mean_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  ggplot(aes(x=boundary_alt, y=mean_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type) + theme_bw() +
+  theme(text = element_text(size = 11)) + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title=paste(individual_insect, "numbers by farm type, season and treatment"))
+
+pc_mod %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type) + theme_bw() +
+  theme(text = element_text(size = 10)) + 
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title= paste(individual_insect, "numbers by farm type and treatment across seasons, data used in model"),
+       color="Boundary")
+```
+
+### Model
+
+We fit a negative binomial generalised linear mixed model. The log link function
+is used. The model has the three-way interaction of farm_type, boundary_alt and
+season. There is a random effect for boundary_alt:farm_name.
+
+<br>
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * boundary_alt * season  + 
+                (1|boundary_alt:farm_name), 
+                # ziformula = ~ 1,
+                # dispformula = ~ 1,
+                #dispformula = ~ season + farm_type + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod)
+# summary(mod.zi)
+# residplot(mod.zi, newwd = FALSE)
+# AIC(mod.zi); BIC(mod.zi)
+# 
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# plot(simres)
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi))
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The main effect for season is the only significant term.
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ season,
+      xlab="", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(season) %>% summarise(mean=mean(sum_of_insects_100_flowers), n=n())
+# emmeans(mod.zi,  ~ season, type="response", adjust = "fdr")
+```
+
+## Striped flesh fly
+
+```{r}
+individual_insect <- "Striped flesh fly"
+individual_insects <- "Striped flesh flies"
+
+pc_mod <- pc_sub %>% filter(new_insect_key_name == individual_insect) %>% droplevels()
+```
+
+### Graphs of raw means and data used in model
+
+```{r}
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season) %>%
+  summarise(mean_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  ggplot(aes(x=boundary_alt, y=mean_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type) + theme_bw() +
+  theme(text = element_text(size = 11)) + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title=paste(individual_insect, "numbers by farm type, season and treatment"))
+
+pc_mod %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type) + theme_bw() +
+  theme(text = element_text(size = 10)) + 
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title= paste(individual_insect, "numbers by farm type and treatment across seasons, data used in model"),
+       color="Boundary")
+```
+
+### Model
+
+We fit a negative binomial generalised linear mixed model. The log link function
+is used. The model has farm_type, boundary_alt and season plus all the
+two-interactions of these three terms. The model failed to converge with the
+three-way interaction so it was removed.
+There is a random effect for boundary_alt:farm_name.
+
+<br>
+
+
+<br>
+
+The ANOVA table is
+
+```{r}
+# pc_mod %>% group_by(farm_type, boundary_alt, season) %>% summarise(mean=mean(sum_of_insects_100_flowers)) %>% filter(mean==0)
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type * boundary_alt * season - farm_type:boundary_alt:season + 
+                (1|boundary_alt:farm_name), 
+                #ziformula = ~ 1,
+                #dispformula = ~ 1,
+                #dispformula = ~ season + farm_type + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod)
+#  summary(mod.zi)
+#  residplot(mod.zi, newwd = FALSE)
+#  AIC(mod.zi); BIC(mod.zi)
+# 
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# plot(simres)
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi))
+```
+
+<br>
+
+```{r}
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The main effects for season and farm_type are significant.
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ season,
+      xlab="", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(season) %>% summarise(mean=mean(sum_of_insects_100_flowers), n=n())
+# emmeans(mod.zi,  ~ season, type="response", adjust = "fdr")
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ farm_type,
+      xlab="Farm type", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+# pc_mod %>% group_by(season) %>% summarise(mean=mean(sum_of_insects_100_flowers), n=n())
+# emmeans(mod.zi,  ~ season, type="response", adjust = "fdr")
+```
+
+## NZ black hover fly
+
+```{r}
+individual_insect <- "NZ black hover fly"
+individual_insects <- "NZ black hover flies"
+
+pc_mod <- pc_sub %>% filter(new_insect_key_name == individual_insect) %>% droplevels()
+```
+
+### Graphs of raw means and data used in model
+
+```{r}
+pc_mod %>% 
+  group_by(farm_type, boundary_alt, season) %>%
+  summarise(mean_insects_100_flowers=mean(sum_of_insects_100_flowers)) %>%
+  ggplot(aes(x=boundary_alt, y=mean_insects_100_flowers, fill=boundary_alt)) + 
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_grid(season~farm_type) + theme_bw() +
+  theme(text = element_text(size = 11)) + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1)) +
+  theme(legend.position = "none") +
+  labs(x="", y="Mean sum of insects per 100 flowers", title=paste(individual_insect, "numbers by farm type, season and treatment"))
+
+pc_mod %>%
+  ggplot(aes(x=season, y=sum_of_insects_100_flowers, color=boundary_alt, group = farm_name:boundary_alt)) + 
+  geom_point() +
+  geom_line() +
+  facet_grid(boundary_alt~farm_type) + theme_bw() +
+  theme(text = element_text(size = 10)) + 
+  theme(legend.position = "none") +
+  labs(x="", y="Sum of insects per 100 flowers", 
+       title= paste(individual_insect, "numbers by farm type and treatment across seasons, data used in model"),
+       color="Boundary")
+```
+
+### Model
+
+We fit a negative binomial generalised linear mixed model. The log link function
+is used. The model has the main-effect for farm_type, boundary_alt and season.
+The interaction terms caused convergence problems (or were not significant).
+There is a random effect for boundary_alt:farm_name.
+
+<br>
+
+The ANOVA table is
+
+```{r}
+mod.zi <- glmmTMB(sum_of_insects_100_flowers ~
+                farm_type + boundary_alt + season +
+                (1|boundary_alt:farm_name), 
+                # ziformula = ~ 1,
+                # dispformula = ~ 1,
+                #dispformula = ~ season + farm_type + boundary_alt, 
+                family = nbinom2(link="log"), data = pc_mod)
+#  summary(mod.zi)
+#  residplot(mod.zi, newwd = FALSE)
+#  AIC(mod.zi); BIC(mod.zi)
+# 
+# simres <- simulateResiduals(fittedModel = mod.zi)
+# plot(simres)
+# testDispersion(simres)
+# testZeroInflation(simulateResiduals(mod.zi))
+```
+
+<br>
+
+```{r}
+# kable(Anova(mod.zi, component = "zi"), digits=3, format = "pandoc")
+kable(Anova(mod.zi), digits=3, format = "pandoc")
+```
+
+<br>
+
+The main effects are all significant.
+
+<br>
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ season,
+      xlab="", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ boundary_alt,
+      xlab="Boundary type", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+```
+
+```{r, fig.height=4}
+emmip(mod.zi, ~ farm_type,
+      xlab="Farm type", 
+      ylab=paste("Predicted number of", individual_insects, "\nper 100 flowers"), 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw() # + theme(axis.text.x = element_text(angle=30, hjust=1, vjust=1))
+```
+

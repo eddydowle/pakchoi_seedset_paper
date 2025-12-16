@@ -1,320 +1,320 @@
-Year,Farm,Type_of_farm,Simplified_Boundary,Treatment,Mean_seeds_viable
-2021-2022,Ahuriri,Arable,New native,Hand pollinated,16.2
-2021-2022,Ahuriri,Arable,New native,Open,14.766666666666667
-2021-2022,Ahuriri,Arable,New native,Closed,1
-2021-2022,Ahuriri,Arable,Control farm,Hand pollinated,16.166666666666668
-2021-2022,Ahuriri,Arable,Control farm,Open,10.4
-2021-2022,Ashford 1,Dairy,New native,Hand pollinated,16.583333333333336
-2021-2022,Ashford 1,Dairy,New native,Open,9.75
-2021-2022,Ashford 1,Dairy,New native,Closed,0
-2021-2022,Ashford 1,Dairy,Control farm,Hand pollinated,14.783333333333333
-2021-2022,Ashford 1,Dairy,Control farm,Open,10.027777777777777
-2021-2022,Ashford 1,Dairy,Control farm,Closed,2
-2021-2022,Dorie,Dairy,Old native,Hand pollinated,16.47222222222222
-2021-2022,Dorie,Dairy,Old native,Open,10.777777777777779
-2021-2022,Dorie,Dairy,Old native,Closed,0
-2021-2022,FAR,Arable,New native,Hand pollinated,16.166666666666668
-2021-2022,FAR,Arable,New native,Open,12.055555555555555
-2021-2022,FAR,Arable,New native,Closed,0
-2021-2022,Kenburn,Dairy,Old native,Hand pollinated,16.130769230769232
-2021-2022,Kenburn,Dairy,Old native,Open,12.142857142857142
-2021-2022,Kenburn,Dairy,Old native,Closed,0
-2021-2022,Kenburn,Dairy,Bare fence,Hand pollinated,14.619047619047619
-2021-2022,Kenburn,Dairy,Bare fence,Open,10.5
-2021-2022,Kenburn,Dairy,Bare fence,Closed,0
-2021-2022,Kenburn,Dairy,Control farm,Hand pollinated,12.775
-2021-2022,Kenburn,Dairy,Control farm,Open,9.466666666666667
-2021-2022,Kenburn,Dairy,Control farm,Closed,0
-2021-2022,Kowhai,Dairy,Old native,Hand pollinated,15.021464646464647
-2021-2022,Kowhai,Dairy,Old native,Open,11.004761904761905
-2021-2022,Kowhai,Dairy,Old native,Closed,0
-2021-2022,Kowhai,Dairy,Bare fence,Hand pollinated,15.544444444444444
-2021-2022,Kowhai,Dairy,Bare fence,Open,9.25
-2021-2022,Kowhai,Dairy,Bare fence,Closed,2
-2021-2022,Kowhai,Dairy,Control farm,Hand pollinated,15.333333333333334
-2021-2022,Kowhai,Dairy,Control farm,Open,7.5476190476190474
-2021-2022,Kowhai,Dairy,Control farm,Closed,1.25
-2021-2022,Leaderbrand,Arable,Old native,Hand pollinated,12
-2021-2022,Leaderbrand,Arable,Old native,Open,13.333333333333334
-2021-2022,Leaderbrand,Arable,Old native,Closed,0
-2021-2022,Leaderbrand,Arable,Bare fence,Hand pollinated,14.083333333333334
-2021-2022,Leaderbrand,Arable,Bare fence,Open,8.333333333333334
-2021-2022,Leaderbrand,Arable,Bare fence,Closed,0.5
-2021-2022,Lochan Mor,Dairy,Old native,Hand pollinated,14.944444444444445
-2021-2022,Lochan Mor,Dairy,Old native,Open,13.435185185185185
-2021-2022,Lochan Mor,Dairy,Old native,Closed,0
-2021-2022,Lochan Mor,Dairy,Bare fence,Hand pollinated,16.208333333333332
-2021-2022,Lochan Mor,Dairy,Bare fence,Open,11.275
-2021-2022,Lochan Mor,Dairy,Bare fence,Closed,0.5
-2021-2022,Lochan Mor,Dairy,Control farm,Hand pollinated,14.444444444444445
-2021-2022,Lochan Mor,Dairy,Control farm,Open,10.430555555555555
-2021-2022,Lochan Mor,Dairy,Control farm,Closed,0.1
-2021-2022,Marr,Arable,Old native,Hand pollinated,15.25
-2021-2022,Marr,Arable,Old native,Open,13.8
-2021-2022,Marr,Arable,Old native,Closed,3.9444444444444446
-2021-2022,Marr,Arable,Bare fence,Hand pollinated,12.75
-2021-2022,Marr,Arable,Bare fence,Open,9.333333333333332
-2021-2022,Marr,Arable,Bare fence,Closed,0.2
-2021-2022,Pareka,Dairy,Old native,Hand pollinated,15.047619047619047
-2021-2022,Pareka,Dairy,Old native,Open,14.804761904761904
-2021-2022,Pareka,Dairy,Old native,Closed,0.26666666666666666
-2021-2022,Pareka,Dairy,Bare fence,Hand pollinated,17
-2021-2022,Pareka,Dairy,Bare fence,Open,7.826984126984127
-2021-2022,Pareka,Dairy,Bare fence,Closed,0
-2021-2022,Pareka,Dairy,Control farm,Hand pollinated,14.93452380952381
-2021-2022,Pareka,Dairy,Control farm,Open,6.533333333333333
-2021-2022,Pareka,Dairy,Control farm,Closed,0.26666666666666666
-2021-2022,Pocock,Dairy,Old native,Hand pollinated,16.8
-2021-2022,Pocock,Dairy,Old native,Open,15.577777777777778
-2021-2022,Pocock,Dairy,Old native,Closed,1
-2021-2022,Pocock,Dairy,New native,Hand pollinated,15.305555555555555
-2021-2022,Pocock,Dairy,New native,Open,11.933333333333334
-2021-2022,Pocock,Dairy,New native,Closed,4
-2021-2022,Pocock,Dairy,Bare fence,Hand pollinated,12.694444444444445
-2021-2022,Pocock,Dairy,Bare fence,Open,10.833333333333332
-2021-2022,Pocock,Dairy,Bare fence,Closed,1.5
-2021-2022,Te Maania,Dairy,Old native,Hand pollinated,13.922222222222222
-2021-2022,Te Maania,Dairy,Old native,Open,13.869047619047619
-2021-2022,Te Maania,Dairy,Old native,Closed,0.4666666666666666
-2021-2022,Te Maania,Dairy,Bare fence,Hand pollinated,9.46031746031746
-2021-2022,Te Maania,Dairy,Bare fence,Open,10.269841269841269
-2021-2022,Te Maania,Dairy,Bare fence,Closed,0
-2021-2022,Te Maania,Dairy,Control farm,Hand pollinated,14.250793650793652
-2021-2022,Te Maania,Dairy,Control farm,Open,8.825
-2021-2022,Te Maania,Dairy,Control farm,Closed,0
-2021-2022,Terrace View,Dairy,Old native,Hand pollinated,15.542424242424241
-2021-2022,Terrace View,Dairy,Old native,Open,16.56547619047619
-2021-2022,Terrace View,Dairy,Old native,Closed,0.5833333333333334
-2021-2022,Terrace View,Dairy,New native,Hand pollinated,17.53333333333333
-2021-2022,Terrace View,Dairy,New native,Open,14.175
-2021-2022,Terrace View,Dairy,New native,Closed,0.6666666666666666
-2021-2022,Terrace View,Dairy,Bare fence,Hand pollinated,17.03611111111111
-2021-2022,Terrace View,Dairy,Bare fence,Open,12.655555555555555
-2021-2022,Terrace View,Dairy,Bare fence,Closed,0.8833333333333333
-2021-2022,Terrace View,Dairy,Control farm,Hand pollinated,15.638095238095238
-2021-2022,Terrace View,Dairy,Control farm,Open,10.907407407407407
-2021-2022,Terrace View,Dairy,Control farm,Closed,0
-2021-2022,Tweed,Arable,New native,Hand pollinated,17.166666666666664
-2021-2022,Tweed,Arable,New native,Open,9.5
-2021-2022,Tweed,Arable,New native,Closed,0
-2021-2022,Tweed,Arable,Bare fence,Hand pollinated,14
-2021-2022,Tweed,Arable,Bare fence,Open,8
-2021-2022,Tweed,Arable,Bare fence,Closed,0
-2021-2022,Wakanui,Arable,New native,Hand pollinated,17.166666666666668
-2021-2022,Wakanui,Arable,New native,Open,13.416666666666666
-2021-2022,Wakanui,Arable,New native,Closed,0.75
-2021-2022,Ward,Arable,Old native,Hand pollinated,13.333333333333332
-2021-2022,Ward,Arable,Old native,Open,11.416666666666668
-2021-2022,Ward,Arable,Old native,Closed,0
-2021-2022,Ward,Arable,Bare fence,Hand pollinated,16.416666666666668
-2021-2022,Ward,Arable,Bare fence,Open,12.25
-2022-2023,Ahuriri,Arable,New native,Hand pollinated,9.5
-2022-2023,Ahuriri,Arable,New native,Open,15.527777777777777
-2022-2023,Ahuriri,Arable,New native,Closed,0.2222222222222222
-2022-2023,Ahuriri,Arable,Control farm,Hand pollinated,18.944444444444446
-2022-2023,Ahuriri,Arable,Control farm,Open,13
-2022-2023,Ahuriri,Arable,Control farm,Closed,0
-2022-2023,Ashford 1,Dairy,New native,Hand pollinated,16.22222222222222
-2022-2023,Ashford 1,Dairy,New native,Open,19.22222222222222
-2022-2023,Ashford 1,Dairy,New native,Closed,0.16666666666666666
-2022-2023,Ashford 1,Dairy,Control farm,Hand pollinated,17.5
-2022-2023,Ashford 1,Dairy,Control farm,Open,11.38888888888889
-2022-2023,Ashford 1,Dairy,Control farm,Closed,0
-2022-2023,Dorie,Dairy,Old native,Hand pollinated,20.27777777777778
-2022-2023,Dorie,Dairy,Old native,Open,17.11111111111111
-2022-2023,Dorie,Dairy,Old native,Closed,0.047619047619047616
-2022-2023,FAR,Arable,Old native,Hand pollinated,17.666666666666664
-2022-2023,FAR,Arable,Old native,Open,17.11111111111111
-2022-2023,FAR,Arable,Old native,Closed,0.16666666666666666
-2022-2023,FAR,Arable,New native,Hand pollinated,19.5
-2022-2023,FAR,Arable,New native,Open,18.444444444444443
-2022-2023,FAR,Arable,New native,Closed,0.45833333333333337
-2022-2023,Kenburn,Dairy,Old native,Hand pollinated,15.78030303030303
-2022-2023,Kenburn,Dairy,Old native,Open,18.433333333333334
-2022-2023,Kenburn,Dairy,Old native,Closed,1.1574074074074074
-2022-2023,Kenburn,Dairy,Bare fence,Hand pollinated,17.25
-2022-2023,Kenburn,Dairy,Bare fence,Open,14.972222222222223
-2022-2023,Kenburn,Dairy,Bare fence,Closed,0.25
-2022-2023,Kenburn,Dairy,Control farm,Hand pollinated,19.944444444444443
-2022-2023,Kenburn,Dairy,Control farm,Open,16.244444444444444
-2022-2023,Kenburn,Dairy,Control farm,Closed,0.5833333333333334
-2022-2023,Kowhai,Dairy,Old native,Hand pollinated,18.944444444444443
-2022-2023,Kowhai,Dairy,Old native,Open,16.583333333333332
-2022-2023,Kowhai,Dairy,Old native,Closed,0.08333333333333333
-2022-2023,Kowhai,Dairy,Bare fence,Hand pollinated,16.633333333333333
-2022-2023,Kowhai,Dairy,Bare fence,Open,7.708333333333334
-2022-2023,Kowhai,Dairy,Bare fence,Closed,0.08333333333333333
-2022-2023,Kowhai,Dairy,Control farm,Hand pollinated,19.444444444444443
-2022-2023,Kowhai,Dairy,Control farm,Open,5.365079365079366
-2022-2023,Kowhai,Dairy,Control farm,Closed,0.2222222222222222
-2022-2023,Leaderbrand,Arable,Old native,Hand pollinated,21.666666666666668
-2022-2023,Leaderbrand,Arable,Old native,Open,20.916666666666664
-2022-2023,Leaderbrand,Arable,Old native,Closed,0
-2022-2023,Leaderbrand,Arable,Bare fence,Hand pollinated,18.72222222222222
-2022-2023,Leaderbrand,Arable,Bare fence,Open,15
-2022-2023,Leaderbrand,Arable,Bare fence,Closed,1.5555555555555556
-2022-2023,Lochan Mor,Dairy,Old native,Hand pollinated,19.634920634920636
-2022-2023,Lochan Mor,Dairy,Old native,Open,19.446969696969695
-2022-2023,Lochan Mor,Dairy,Old native,Closed,0
-2022-2023,Lochan Mor,Dairy,Bare fence,Hand pollinated,18
-2022-2023,Lochan Mor,Dairy,Bare fence,Open,10.86111111111111
-2022-2023,Lochan Mor,Dairy,Bare fence,Closed,0.5
-2022-2023,Lochan Mor,Dairy,Control farm,Hand pollinated,14.25
-2022-2023,Lochan Mor,Dairy,Control farm,Open,11
-2022-2023,Lochan Mor,Dairy,Control farm,Closed,0.8888888888888888
-2022-2023,Marr,Arable,Old native,Hand pollinated,15.277777777777777
-2022-2023,Marr,Arable,Old native,Open,14.944444444444445
-2022-2023,Marr,Arable,Old native,Closed,0.6666666666666666
-2022-2023,Marr,Arable,Bare fence,Hand pollinated,14.555555555555555
-2022-2023,Marr,Arable,Bare fence,Open,4.5
-2022-2023,Marr,Arable,Bare fence,Closed,0.05555555555555555
-2022-2023,Pareka,Dairy,Old native,Hand pollinated,18.762626262626263
-2022-2023,Pareka,Dairy,Old native,Open,18.083333333333332
-2022-2023,Pareka,Dairy,Old native,Closed,0.5892857142857143
-2022-2023,Pareka,Dairy,Bare fence,Hand pollinated,18.32962962962963
-2022-2023,Pareka,Dairy,Bare fence,Open,17.666666666666668
-2022-2023,Pareka,Dairy,Bare fence,Closed,0.3333333333333333
-2022-2023,Pareka,Dairy,Control farm,Hand pollinated,20.72222222222222
-2022-2023,Pareka,Dairy,Control farm,Open,12.333333333333332
-2022-2023,Pareka,Dairy,Control farm,Closed,0
-2022-2023,Pocock,Dairy,Old native,Hand pollinated,19.694444444444443
-2022-2023,Pocock,Dairy,Old native,Open,22.944444444444443
-2022-2023,Pocock,Dairy,Old native,Closed,0.6666666666666666
-2022-2023,Pocock,Dairy,New native,Hand pollinated,19.083333333333332
-2022-2023,Pocock,Dairy,New native,Open,15
-2022-2023,Pocock,Dairy,New native,Closed,0
-2022-2023,Pocock,Dairy,Bare fence,Hand pollinated,18.833333333333332
-2022-2023,Pocock,Dairy,Bare fence,Open,18.22222222222222
-2022-2023,Pocock,Dairy,Bare fence,Closed,0
-2022-2023,Te Maania,Dairy,Old native,Hand pollinated,15.263636363636364
-2022-2023,Te Maania,Dairy,Old native,Open,14.845117845117844
-2022-2023,Te Maania,Dairy,Old native,Closed,1
-2022-2023,Te Maania,Dairy,Bare fence,Hand pollinated,16.055555555555557
-2022-2023,Te Maania,Dairy,Bare fence,Open,7.783333333333333
-2022-2023,Te Maania,Dairy,Bare fence,Closed,0.1111111111111111
-2022-2023,Te Maania,Dairy,Control farm,Hand pollinated,18.9
-2022-2023,Te Maania,Dairy,Control farm,Open,13.566666666666666
-2022-2023,Te Maania,Dairy,Control farm,Closed,0.9166666666666666
-2022-2023,Terrace View,Dairy,Old native,Hand pollinated,21.46666666666667
-2022-2023,Terrace View,Dairy,Old native,Open,19.85757575757576
-2022-2023,Terrace View,Dairy,Old native,Closed,1.1805555555555556
-2022-2023,Terrace View,Dairy,New native,Hand pollinated,12.577777777777778
-2022-2023,Terrace View,Dairy,New native,Open,16.844444444444445
-2022-2023,Terrace View,Dairy,New native,Closed,0
-2022-2023,Terrace View,Dairy,Bare fence,Hand pollinated,13.504761904761905
-2022-2023,Terrace View,Dairy,Bare fence,Open,11.633333333333333
-2022-2023,Terrace View,Dairy,Bare fence,Closed,0.3333333333333333
-2022-2023,Terrace View,Dairy,Control farm,Hand pollinated,14.911111111111111
-2022-2023,Terrace View,Dairy,Control farm,Open,13.3
-2022-2023,Terrace View,Dairy,Control farm,Closed,0.5833333333333333
-2022-2023,Tweed,Arable,New native,Hand pollinated,17.116666666666667
-2022-2023,Tweed,Arable,New native,Open,17.483333333333334
-2022-2023,Tweed,Arable,New native,Closed,0
-2022-2023,Tweed,Arable,Bare fence,Hand pollinated,20.166666666666668
-2022-2023,Tweed,Arable,Bare fence,Open,16.844444444444445
-2022-2023,Tweed,Arable,Bare fence,Closed,1.1111111111111112
-2022-2023,Wakanui,Arable,New native,Hand pollinated,18.305555555555554
-2022-2023,Wakanui,Arable,New native,Open,17.72222222222222
-2022-2023,Wakanui,Arable,New native,Closed,0.2222222222222222
-2022-2023,Ward,Arable,Old native,Hand pollinated,20.266666666666666
-2022-2023,Ward,Arable,Old native,Open,17.77777777777778
-2022-2023,Ward,Arable,Old native,Closed,0.7063492063492064
-2022-2023,Ward,Arable,Bare fence,Hand pollinated,20.85
-2022-2023,Ward,Arable,Bare fence,Open,15.11111111111111
-2022-2023,Ward,Arable,Bare fence,Closed,1.8333333333333333
-2023-2024,Ahuriri,Arable,New native,Hand pollinated,17.875
-2023-2024,Ahuriri,Arable,New native,Open,15.433333333333334
-2023-2024,Ahuriri,Arable,New native,Closed,0
-2023-2024,Ahuriri,Arable,Control farm,Hand pollinated,17.933333333333334
-2023-2024,Ahuriri,Arable,Control farm,Open,12.541666666666668
-2023-2024,Ahuriri,Arable,Control farm,Closed,0
-2023-2024,Ashford 1,Dairy,New native,Hand pollinated,20.226190476190474
-2023-2024,Ashford 1,Dairy,New native,Open,15.777777777777777
-2023-2024,Ashford 1,Dairy,New native,Closed,0
-2023-2024,Ashford 1,Dairy,Control farm,Hand pollinated,16.1
-2023-2024,Ashford 1,Dairy,Control farm,Open,12
-2023-2024,Ashford 1,Dairy,Control farm,Closed,0
-2023-2024,Dorie,Dairy,Old native,Hand pollinated,17.604761904761904
-2023-2024,Dorie,Dairy,Old native,Open,16.544444444444444
-2023-2024,Dorie,Dairy,Old native,Closed,2.6
-2023-2024,FAR,Arable,New native,Hand pollinated,20.055555555555557
-2023-2024,FAR,Arable,New native,Open,16.266666666666666
-2023-2024,FAR,Arable,New native,Closed,0
-2023-2024,FAR,Arable,Control farm,Hand pollinated,17.555555555555557
-2023-2024,FAR,Arable,Control farm,Open,13.494444444444445
-2023-2024,FAR,Arable,Control farm,Closed,0
-2023-2024,Garrickfield,Arable,Old native,Hand pollinated,17.577777777777776
-2023-2024,Garrickfield,Arable,Old native,Open,15.566666666666666
-2023-2024,Garrickfield,Arable,Old native,Closed,0
-2023-2024,Garrickfield,Arable,New native,Hand pollinated,17.233333333333334
-2023-2024,Garrickfield,Arable,New native,Open,13.022222222222222
-2023-2024,Garrickfield,Arable,Bare fence,Hand pollinated,16.46666666666667
-2023-2024,Garrickfield,Arable,Bare fence,Open,12.344444444444445
-2023-2024,Garrickfield,Arable,Bare fence,Closed,3.45
-2023-2024,Leaderbrand,Arable,Old native,Hand pollinated,20.2
-2023-2024,Leaderbrand,Arable,Old native,Open,17.01111111111111
-2023-2024,Leaderbrand,Arable,Old native,Closed,1.25
-2023-2024,Leaderbrand,Arable,Bare fence,Hand pollinated,18.5
-2023-2024,Leaderbrand,Arable,Bare fence,Open,12.7
-2023-2024,Leaderbrand,Arable,Bare fence,Closed,0
-2023-2024,Limbrick,Arable,New native,Hand pollinated,20.75
-2023-2024,Limbrick,Arable,New native,Open,15.466666666666667
-2023-2024,Limbrick,Arable,Control farm,Hand pollinated,20.633333333333333
-2023-2024,Limbrick,Arable,Control farm,Open,20.266666666666666
-2023-2024,Limbrick,Arable,Control farm,Closed,1.4444444444444444
-2023-2024,Lochan Mor,Dairy,Old native,Hand pollinated,19
-2023-2024,Lochan Mor,Dairy,Old native,Open,18.916666666666664
-2023-2024,Lochan Mor,Dairy,Old native,Closed,1.1666666666666667
-2023-2024,Lochan Mor,Dairy,Control farm,Hand pollinated,18.5
-2023-2024,Lochan Mor,Dairy,Control farm,Open,12.344444444444445
-2023-2024,Lochan Mor,Dairy,Control farm,Closed,0.75
-2023-2024,Marr,Arable,Old native,Hand pollinated,16.666666666666668
-2023-2024,Marr,Arable,Old native,Open,16.85
-2023-2024,Marr,Arable,Old native,Closed,0.4666666666666667
-2023-2024,Marr,Arable,Bare fence,Hand pollinated,19.166666666666668
-2023-2024,Marr,Arable,Bare fence,Open,14.45
-2023-2024,Marr,Arable,Bare fence,Closed,0.125
-2023-2024,Nutpoint,Arable,Old native,Hand pollinated,18.45
-2023-2024,Nutpoint,Arable,Old native,Open,17.1
-2023-2024,Nutpoint,Arable,Control farm,Hand pollinated,17.416666666666668
-2023-2024,Nutpoint,Arable,Control farm,Open,14.566666666666666
-2023-2024,Pareka,Dairy,Old native,Hand pollinated,15.333333333333334
-2023-2024,Pareka,Dairy,Old native,Open,17.055555555555557
-2023-2024,Pareka,Dairy,Control farm,Hand pollinated,17.833333333333332
-2023-2024,Pareka,Dairy,Control farm,Open,8.333333333333334
-2023-2024,Pareka,Dairy,Control farm,Closed,0
-2023-2024,Pocock,Dairy,Old native,Hand pollinated,19.983333333333334
-2023-2024,Pocock,Dairy,Old native,Open,16.27777777777778
-2023-2024,Pocock,Dairy,Old native,Closed,0
-2023-2024,Pocock,Dairy,New native,Hand pollinated,18.94642857142857
-2023-2024,Pocock,Dairy,New native,Open,18.577777777777776
-2023-2024,Pocock,Dairy,New native,Closed,0
-2023-2024,Pocock,Dairy,Bare fence,Hand pollinated,18.38888888888889
-2023-2024,Pocock,Dairy,Bare fence,Open,16.00952380952381
-2023-2024,Pocock,Dairy,Bare fence,Closed,1.9583333333333333
-2023-2024,Terrace View,Dairy,Old native,Hand pollinated,21.3
-2023-2024,Terrace View,Dairy,Old native,Open,16.416666666666668
-2023-2024,Terrace View,Dairy,Old native,Closed,3
-2023-2024,Terrace View,Dairy,New native,Hand pollinated,23.083333333333332
-2023-2024,Terrace View,Dairy,New native,Open,17.933333333333334
-2023-2024,Terrace View,Dairy,New native,Closed,1
-2023-2024,Terrace View,Dairy,Bare fence,Hand pollinated,20.666666666666668
-2023-2024,Terrace View,Dairy,Bare fence,Open,13.178571428571429
-2023-2024,Terrace View,Dairy,Bare fence,Closed,0.1111111111111111
-2023-2024,Terrace View,Dairy,Control farm,Hand pollinated,18.166666666666668
-2023-2024,Terrace View,Dairy,Control farm,Open,12.1
-2023-2024,Terrace View,Dairy,Control farm,Closed,0
-2023-2024,Tweed,Arable,New native,Hand pollinated,21.77777777777778
-2023-2024,Tweed,Arable,New native,Open,20.166666666666668
-2023-2024,Tweed,Arable,New native,Closed,1
-2023-2024,Tweed,Arable,Bare fence,Hand pollinated,17.96666666666667
-2023-2024,Tweed,Arable,Bare fence,Open,15
-2023-2024,Tweed,Arable,Bare fence,Closed,0
-2023-2024,Wakanui,Arable,New native,Hand pollinated,15.816666666666666
-2023-2024,Wakanui,Arable,New native,Open,16.566666666666666
-2023-2024,Ward,Arable,Old native,Hand pollinated,18.433333333333334
-2023-2024,Ward,Arable,Old native,Open,16.875
-2023-2024,Ward,Arable,Old native,Closed,0
-2023-2024,Ward,Arable,Bare fence,Hand pollinated,18.166666666666664
-2023-2024,Ward,Arable,Bare fence,Open,11.958333333333332
-2023-2024,Ward,Arable,Bare fence,Closed,0
+Year,Farm,Type_of_farm,Simplified_Boundary,Native_new_age,Treatment,Mean_seeds_viable
+2021-2022,Ahuriri,Arable,New native,One-year old native,Hand pollinated,16.2
+2021-2022,Ahuriri,Arable,New native,One-year old native,Open,14.766666666666667
+2021-2022,Ahuriri,Arable,New native,One-year old native,Closed,1
+2021-2022,Ahuriri,Arable,Control farm,Off-farm bare fence,Hand pollinated,16.166666666666668
+2021-2022,Ahuriri,Arable,Control farm,Off-farm bare fence,Open,10.4
+2021-2022,Ashford 1,Dairy,New native,One-year old native,Hand pollinated,16.583333333333336
+2021-2022,Ashford 1,Dairy,New native,One-year old native,Open,9.75
+2021-2022,Ashford 1,Dairy,New native,One-year old native,Closed,0
+2021-2022,Ashford 1,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.783333333333333
+2021-2022,Ashford 1,Dairy,Control farm,Off-farm bare fence,Open,10.027777777777777
+2021-2022,Ashford 1,Dairy,Control farm,Off-farm bare fence,Closed,2
+2021-2022,Dorie,Dairy,Old native,Old native,Hand pollinated,16.47222222222222
+2021-2022,Dorie,Dairy,Old native,Old native,Open,10.777777777777779
+2021-2022,Dorie,Dairy,Old native,Old native,Closed,0
+2021-2022,FAR,Arable,Old native,Old native,Hand pollinated,16.166666666666668
+2021-2022,FAR,Arable,Old native,Old native,Open,12.055555555555555
+2021-2022,FAR,Arable,Old native,Old native,Closed,0
+2021-2022,Kenburn,Dairy,Old native,Old native,Hand pollinated,16.130769230769232
+2021-2022,Kenburn,Dairy,Old native,Old native,Open,12.142857142857142
+2021-2022,Kenburn,Dairy,Old native,Old native,Closed,0
+2021-2022,Kenburn,Dairy,Bare fence,On-farm bare fence,Hand pollinated,14.619047619047619
+2021-2022,Kenburn,Dairy,Bare fence,On-farm bare fence,Open,10.5
+2021-2022,Kenburn,Dairy,Bare fence,On-farm bare fence,Closed,0
+2021-2022,Kenburn,Dairy,Control farm,Off-farm bare fence,Hand pollinated,12.775
+2021-2022,Kenburn,Dairy,Control farm,Off-farm bare fence,Open,9.466666666666667
+2021-2022,Kenburn,Dairy,Control farm,Off-farm bare fence,Closed,0
+2021-2022,Kowhai,Dairy,Old native,Old native,Hand pollinated,15.021464646464647
+2021-2022,Kowhai,Dairy,Old native,Old native,Open,11.004761904761905
+2021-2022,Kowhai,Dairy,Old native,Old native,Closed,0
+2021-2022,Kowhai,Dairy,Bare fence,On-farm bare fence,Hand pollinated,15.544444444444444
+2021-2022,Kowhai,Dairy,Bare fence,On-farm bare fence,Open,9.25
+2021-2022,Kowhai,Dairy,Bare fence,On-farm bare fence,Closed,2
+2021-2022,Kowhai,Dairy,Control farm,Off-farm bare fence,Hand pollinated,15.333333333333334
+2021-2022,Kowhai,Dairy,Control farm,Off-farm bare fence,Open,7.5476190476190474
+2021-2022,Kowhai,Dairy,Control farm,Off-farm bare fence,Closed,1.25
+2021-2022,Leaderbrand,Arable,Old native,Old native,Hand pollinated,12
+2021-2022,Leaderbrand,Arable,Old native,Old native,Open,13.333333333333334
+2021-2022,Leaderbrand,Arable,Old native,Old native,Closed,0
+2021-2022,Leaderbrand,Arable,Bare fence,On-farm bare fence,Hand pollinated,14.083333333333334
+2021-2022,Leaderbrand,Arable,Bare fence,On-farm bare fence,Open,8.333333333333334
+2021-2022,Leaderbrand,Arable,Bare fence,On-farm bare fence,Closed,0.5
+2021-2022,Lochan Mor,Dairy,Old native,Old native,Hand pollinated,14.944444444444445
+2021-2022,Lochan Mor,Dairy,Old native,Old native,Open,13.435185185185185
+2021-2022,Lochan Mor,Dairy,Old native,Old native,Closed,0
+2021-2022,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Hand pollinated,16.208333333333332
+2021-2022,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Open,11.275
+2021-2022,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Closed,0.5
+2021-2022,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.444444444444445
+2021-2022,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Open,10.430555555555555
+2021-2022,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Closed,0.1
+2021-2022,Marr,Arable,Old native,Old native,Hand pollinated,15.25
+2021-2022,Marr,Arable,Old native,Old native,Open,13.8
+2021-2022,Marr,Arable,Old native,Old native,Closed,3.9444444444444446
+2021-2022,Marr,Arable,Bare fence,On-farm bare fence,Hand pollinated,12.75
+2021-2022,Marr,Arable,Bare fence,On-farm bare fence,Open,9.333333333333332
+2021-2022,Marr,Arable,Bare fence,On-farm bare fence,Closed,0.2
+2021-2022,Pareka,Dairy,Old native,Old native,Hand pollinated,15.047619047619047
+2021-2022,Pareka,Dairy,Old native,Old native,Open,14.804761904761904
+2021-2022,Pareka,Dairy,Old native,Old native,Closed,0.26666666666666666
+2021-2022,Pareka,Dairy,Bare fence,On-farm bare fence,Hand pollinated,17
+2021-2022,Pareka,Dairy,Bare fence,On-farm bare fence,Open,7.826984126984127
+2021-2022,Pareka,Dairy,Bare fence,On-farm bare fence,Closed,0
+2021-2022,Pareka,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.93452380952381
+2021-2022,Pareka,Dairy,Control farm,Off-farm bare fence,Open,6.533333333333333
+2021-2022,Pareka,Dairy,Control farm,Off-farm bare fence,Closed,0.26666666666666666
+2021-2022,Pocock,Dairy,Old native,Old native,Hand pollinated,16.8
+2021-2022,Pocock,Dairy,Old native,Old native,Open,15.577777777777778
+2021-2022,Pocock,Dairy,Old native,Old native,Closed,1
+2021-2022,Pocock,Dairy,New native,One-year old native,Hand pollinated,15.305555555555555
+2021-2022,Pocock,Dairy,New native,One-year old native,Open,11.933333333333334
+2021-2022,Pocock,Dairy,New native,One-year old native,Closed,4
+2021-2022,Pocock,Dairy,Bare fence,On-farm bare fence,Hand pollinated,12.694444444444445
+2021-2022,Pocock,Dairy,Bare fence,On-farm bare fence,Open,10.833333333333332
+2021-2022,Pocock,Dairy,Bare fence,On-farm bare fence,Closed,1.5
+2021-2022,Te Maania,Dairy,Old native,Old native,Hand pollinated,13.922222222222222
+2021-2022,Te Maania,Dairy,Old native,Old native,Open,13.869047619047619
+2021-2022,Te Maania,Dairy,Old native,Old native,Closed,0.4666666666666666
+2021-2022,Te Maania,Dairy,Bare fence,On-farm bare fence,Hand pollinated,9.46031746031746
+2021-2022,Te Maania,Dairy,Bare fence,On-farm bare fence,Open,10.269841269841269
+2021-2022,Te Maania,Dairy,Bare fence,On-farm bare fence,Closed,0
+2021-2022,Te Maania,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.250793650793652
+2021-2022,Te Maania,Dairy,Control farm,Off-farm bare fence,Open,8.825
+2021-2022,Te Maania,Dairy,Control farm,Off-farm bare fence,Closed,0
+2021-2022,Terrace View,Dairy,Old native,Old native,Hand pollinated,15.542424242424241
+2021-2022,Terrace View,Dairy,Old native,Old native,Open,16.56547619047619
+2021-2022,Terrace View,Dairy,Old native,Old native,Closed,0.5833333333333334
+2021-2022,Terrace View,Dairy,New native,One-year old native,Hand pollinated,17.53333333333333
+2021-2022,Terrace View,Dairy,New native,One-year old native,Open,14.175
+2021-2022,Terrace View,Dairy,New native,One-year old native,Closed,0.6666666666666666
+2021-2022,Terrace View,Dairy,Bare fence,On-farm bare fence,Hand pollinated,17.03611111111111
+2021-2022,Terrace View,Dairy,Bare fence,On-farm bare fence,Open,12.655555555555555
+2021-2022,Terrace View,Dairy,Bare fence,On-farm bare fence,Closed,0.8833333333333333
+2021-2022,Terrace View,Dairy,Control farm,Off-farm bare fence,Hand pollinated,15.638095238095238
+2021-2022,Terrace View,Dairy,Control farm,Off-farm bare fence,Open,10.907407407407407
+2021-2022,Terrace View,Dairy,Control farm,Off-farm bare fence,Closed,0
+2021-2022,Tweed,Arable,New native,One-year old native,Hand pollinated,17.166666666666664
+2021-2022,Tweed,Arable,New native,One-year old native,Open,9.5
+2021-2022,Tweed,Arable,New native,One-year old native,Closed,0
+2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,14
+2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Open,8
+2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Closed,0
+2021-2022,Wakanui,Arable,New native,One-year old native,Hand pollinated,17.166666666666668
+2021-2022,Wakanui,Arable,New native,One-year old native,Open,13.416666666666666
+2021-2022,Wakanui,Arable,New native,One-year old native,Closed,0.75
+2021-2022,Ward,Arable,Old native,Old native,Hand pollinated,13.333333333333332
+2021-2022,Ward,Arable,Old native,Old native,Open,11.416666666666668
+2021-2022,Ward,Arable,Old native,Old native,Closed,0
+2021-2022,Ward,Arable,Bare fence,On-farm bare fence,Hand pollinated,16.416666666666668
+2021-2022,Ward,Arable,Bare fence,On-farm bare fence,Open,12.25
+2022-2023,Ahuriri,Arable,New native,Two-year old native,Hand pollinated,9.5
+2022-2023,Ahuriri,Arable,New native,Two-year old native,Open,15.527777777777777
+2022-2023,Ahuriri,Arable,New native,Two-year old native,Closed,0.2222222222222222
+2022-2023,Ahuriri,Arable,Control farm,Off-farm bare fence,Hand pollinated,18.944444444444446
+2022-2023,Ahuriri,Arable,Control farm,Off-farm bare fence,Open,13
+2022-2023,Ahuriri,Arable,Control farm,Off-farm bare fence,Closed,0
+2022-2023,Ashford 1,Dairy,New native,Two-year old native,Hand pollinated,16.22222222222222
+2022-2023,Ashford 1,Dairy,New native,Two-year old native,Open,19.22222222222222
+2022-2023,Ashford 1,Dairy,New native,Two-year old native,Closed,0.16666666666666666
+2022-2023,Ashford 1,Dairy,Control farm,Off-farm bare fence,Hand pollinated,17.5
+2022-2023,Ashford 1,Dairy,Control farm,Off-farm bare fence,Open,11.38888888888889
+2022-2023,Ashford 1,Dairy,Control farm,Off-farm bare fence,Closed,0
+2022-2023,Dorie,Dairy,Old native,Old native,Hand pollinated,20.27777777777778
+2022-2023,Dorie,Dairy,Old native,Old native,Open,17.11111111111111
+2022-2023,Dorie,Dairy,Old native,Old native,Closed,0.047619047619047616
+2022-2023,FAR,Arable,Old native,Old native,Hand pollinated,17.666666666666664
+2022-2023,FAR,Arable,Old native,Old native,Open,17.11111111111111
+2022-2023,FAR,Arable,Old native,Old native,Closed,0.16666666666666666
+2022-2023,FAR,Arable,New native,Two-year old native,Hand pollinated,19.5
+2022-2023,FAR,Arable,New native,Two-year old native,Open,18.444444444444443
+2022-2023,FAR,Arable,New native,Two-year old native,Closed,0.45833333333333337
+2022-2023,Kenburn,Dairy,Old native,Old native,Hand pollinated,15.78030303030303
+2022-2023,Kenburn,Dairy,Old native,Old native,Open,18.433333333333334
+2022-2023,Kenburn,Dairy,Old native,Old native,Closed,1.1574074074074074
+2022-2023,Kenburn,Dairy,Bare fence,On-farm bare fence,Hand pollinated,17.25
+2022-2023,Kenburn,Dairy,Bare fence,On-farm bare fence,Open,14.972222222222223
+2022-2023,Kenburn,Dairy,Bare fence,On-farm bare fence,Closed,0.25
+2022-2023,Kenburn,Dairy,Control farm,Off-farm bare fence,Hand pollinated,19.944444444444443
+2022-2023,Kenburn,Dairy,Control farm,Off-farm bare fence,Open,16.244444444444444
+2022-2023,Kenburn,Dairy,Control farm,Off-farm bare fence,Closed,0.5833333333333334
+2022-2023,Kowhai,Dairy,Old native,Old native,Hand pollinated,18.944444444444443
+2022-2023,Kowhai,Dairy,Old native,Old native,Open,16.583333333333332
+2022-2023,Kowhai,Dairy,Old native,Old native,Closed,0.08333333333333333
+2022-2023,Kowhai,Dairy,Bare fence,On-farm bare fence,Hand pollinated,16.633333333333333
+2022-2023,Kowhai,Dairy,Bare fence,On-farm bare fence,Open,7.708333333333334
+2022-2023,Kowhai,Dairy,Bare fence,On-farm bare fence,Closed,0.08333333333333333
+2022-2023,Kowhai,Dairy,Control farm,Off-farm bare fence,Hand pollinated,19.444444444444443
+2022-2023,Kowhai,Dairy,Control farm,Off-farm bare fence,Open,5.365079365079366
+2022-2023,Kowhai,Dairy,Control farm,Off-farm bare fence,Closed,0.2222222222222222
+2022-2023,Leaderbrand,Arable,Old native,Old native,Hand pollinated,21.666666666666668
+2022-2023,Leaderbrand,Arable,Old native,Old native,Open,20.916666666666664
+2022-2023,Leaderbrand,Arable,Old native,Old native,Closed,0
+2022-2023,Leaderbrand,Arable,Bare fence,On-farm bare fence,Hand pollinated,18.72222222222222
+2022-2023,Leaderbrand,Arable,Bare fence,On-farm bare fence,Open,15
+2022-2023,Leaderbrand,Arable,Bare fence,On-farm bare fence,Closed,1.5555555555555556
+2022-2023,Lochan Mor,Dairy,Old native,Old native,Hand pollinated,19.634920634920636
+2022-2023,Lochan Mor,Dairy,Old native,Old native,Open,19.446969696969695
+2022-2023,Lochan Mor,Dairy,Old native,Old native,Closed,0
+2022-2023,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Hand pollinated,18
+2022-2023,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Open,10.86111111111111
+2022-2023,Lochan Mor,Dairy,Bare fence,On-farm bare fence,Closed,0.5
+2022-2023,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.25
+2022-2023,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Open,11
+2022-2023,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Closed,0.8888888888888888
+2022-2023,Marr,Arable,Old native,Old native,Hand pollinated,15.277777777777777
+2022-2023,Marr,Arable,Old native,Old native,Open,14.944444444444445
+2022-2023,Marr,Arable,Old native,Old native,Closed,0.6666666666666666
+2022-2023,Marr,Arable,Bare fence,On-farm bare fence,Hand pollinated,14.555555555555555
+2022-2023,Marr,Arable,Bare fence,On-farm bare fence,Open,4.5
+2022-2023,Marr,Arable,Bare fence,On-farm bare fence,Closed,0.05555555555555555
+2022-2023,Pareka,Dairy,Old native,Old native,Hand pollinated,18.762626262626263
+2022-2023,Pareka,Dairy,Old native,Old native,Open,18.083333333333332
+2022-2023,Pareka,Dairy,Old native,Old native,Closed,0.5892857142857143
+2022-2023,Pareka,Dairy,Bare fence,On-farm bare fence,Hand pollinated,18.32962962962963
+2022-2023,Pareka,Dairy,Bare fence,On-farm bare fence,Open,17.666666666666668
+2022-2023,Pareka,Dairy,Bare fence,On-farm bare fence,Closed,0.3333333333333333
+2022-2023,Pareka,Dairy,Control farm,Off-farm bare fence,Hand pollinated,20.72222222222222
+2022-2023,Pareka,Dairy,Control farm,Off-farm bare fence,Open,12.333333333333332
+2022-2023,Pareka,Dairy,Control farm,Off-farm bare fence,Closed,0
+2022-2023,Pocock,Dairy,Old native,Old native,Hand pollinated,19.694444444444443
+2022-2023,Pocock,Dairy,Old native,Old native,Open,22.944444444444443
+2022-2023,Pocock,Dairy,Old native,Old native,Closed,0.6666666666666666
+2022-2023,Pocock,Dairy,New native,Two-year old native,Hand pollinated,19.083333333333332
+2022-2023,Pocock,Dairy,New native,Two-year old native,Open,15
+2022-2023,Pocock,Dairy,New native,Two-year old native,Closed,0
+2022-2023,Pocock,Dairy,Bare fence,On-farm bare fence,Hand pollinated,18.833333333333332
+2022-2023,Pocock,Dairy,Bare fence,On-farm bare fence,Open,18.22222222222222
+2022-2023,Pocock,Dairy,Bare fence,On-farm bare fence,Closed,0
+2022-2023,Te Maania,Dairy,Old native,Old native,Hand pollinated,15.263636363636364
+2022-2023,Te Maania,Dairy,Old native,Old native,Open,14.845117845117844
+2022-2023,Te Maania,Dairy,Old native,Old native,Closed,1
+2022-2023,Te Maania,Dairy,Bare fence,On-farm bare fence,Hand pollinated,16.055555555555557
+2022-2023,Te Maania,Dairy,Bare fence,On-farm bare fence,Open,7.783333333333333
+2022-2023,Te Maania,Dairy,Bare fence,On-farm bare fence,Closed,0.1111111111111111
+2022-2023,Te Maania,Dairy,Control farm,Off-farm bare fence,Hand pollinated,18.9
+2022-2023,Te Maania,Dairy,Control farm,Off-farm bare fence,Open,13.566666666666666
+2022-2023,Te Maania,Dairy,Control farm,Off-farm bare fence,Closed,0.9166666666666666
+2022-2023,Terrace View,Dairy,Old native,Old native,Hand pollinated,21.46666666666667
+2022-2023,Terrace View,Dairy,Old native,Old native,Open,19.85757575757576
+2022-2023,Terrace View,Dairy,Old native,Old native,Closed,1.1805555555555556
+2022-2023,Terrace View,Dairy,New native,Two-year old native,Hand pollinated,12.577777777777778
+2022-2023,Terrace View,Dairy,New native,Two-year old native,Open,16.844444444444445
+2022-2023,Terrace View,Dairy,New native,Two-year old native,Closed,0
+2022-2023,Terrace View,Dairy,Bare fence,On-farm bare fence,Hand pollinated,13.504761904761905
+2022-2023,Terrace View,Dairy,Bare fence,On-farm bare fence,Open,11.633333333333333
+2022-2023,Terrace View,Dairy,Bare fence,On-farm bare fence,Closed,0.3333333333333333
+2022-2023,Terrace View,Dairy,Control farm,Off-farm bare fence,Hand pollinated,14.911111111111111
+2022-2023,Terrace View,Dairy,Control farm,Off-farm bare fence,Open,13.3
+2022-2023,Terrace View,Dairy,Control farm,Off-farm bare fence,Closed,0.5833333333333333
+2022-2023,Tweed,Arable,New native,Two-year old native,Hand pollinated,17.116666666666667
+2022-2023,Tweed,Arable,New native,Two-year old native,Open,17.483333333333334
+2022-2023,Tweed,Arable,New native,Two-year old native,Closed,0
+2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,20.166666666666668
+2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Open,16.844444444444445
+2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Closed,1.1111111111111112
+2022-2023,Wakanui,Arable,New native,Two-year old native,Hand pollinated,18.305555555555554
+2022-2023,Wakanui,Arable,New native,Two-year old native,Open,17.72222222222222
+2022-2023,Wakanui,Arable,New native,Two-year old native,Closed,0.2222222222222222
+2022-2023,Ward,Arable,Old native,Old native,Hand pollinated,20.266666666666666
+2022-2023,Ward,Arable,Old native,Old native,Open,17.77777777777778
+2022-2023,Ward,Arable,Old native,Old native,Closed,0.7063492063492064
+2022-2023,Ward,Arable,Bare fence,On-farm bare fence,Hand pollinated,20.85
+2022-2023,Ward,Arable,Bare fence,On-farm bare fence,Open,15.11111111111111
+2022-2023,Ward,Arable,Bare fence,On-farm bare fence,Closed,1.8333333333333333
+2023-2024,Ahuriri,Arable,New native,Three-year old native,Hand pollinated,17.875
+2023-2024,Ahuriri,Arable,New native,Three-year old native,Open,15.433333333333334
+2023-2024,Ahuriri,Arable,New native,Three-year old native,Closed,0
+2023-2024,Ahuriri,Arable,Control farm,Off-farm bare fence,Hand pollinated,17.933333333333334
+2023-2024,Ahuriri,Arable,Control farm,Off-farm bare fence,Open,12.541666666666668
+2023-2024,Ahuriri,Arable,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Ashford 1,Dairy,New native,Three-year old native,Hand pollinated,20.226190476190474
+2023-2024,Ashford 1,Dairy,New native,Three-year old native,Open,15.777777777777777
+2023-2024,Ashford 1,Dairy,New native,Three-year old native,Closed,0
+2023-2024,Ashford 1,Dairy,Control farm,Off-farm bare fence,Hand pollinated,16.1
+2023-2024,Ashford 1,Dairy,Control farm,Off-farm bare fence,Open,12
+2023-2024,Ashford 1,Dairy,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Dorie,Dairy,Old native,Old native,Hand pollinated,17.604761904761904
+2023-2024,Dorie,Dairy,Old native,Old native,Open,16.544444444444444
+2023-2024,Dorie,Dairy,Old native,Old native,Closed,2.6
+2023-2024,FAR,Arable,New native,Three-year old native,Hand pollinated,20.055555555555557
+2023-2024,FAR,Arable,New native,Three-year old native,Open,16.266666666666666
+2023-2024,FAR,Arable,New native,Three-year old native,Closed,0
+2023-2024,FAR,Arable,Control farm,Off-farm bare fence,Hand pollinated,17.555555555555557
+2023-2024,FAR,Arable,Control farm,Off-farm bare fence,Open,13.494444444444445
+2023-2024,FAR,Arable,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Garrickfield,Arable,Old native,Old native,Hand pollinated,17.577777777777776
+2023-2024,Garrickfield,Arable,Old native,Old native,Open,15.566666666666666
+2023-2024,Garrickfield,Arable,Old native,Old native,Closed,0
+2023-2024,Garrickfield,Arable,New native,Two-year old native,Hand pollinated,17.233333333333334
+2023-2024,Garrickfield,Arable,New native,Two-year old native,Open,13.022222222222222
+2023-2024,Garrickfield,Arable,Bare fence,On-farm bare fence,Hand pollinated,16.46666666666667
+2023-2024,Garrickfield,Arable,Bare fence,On-farm bare fence,Open,12.344444444444445
+2023-2024,Garrickfield,Arable,Bare fence,On-farm bare fence,Closed,3.45
+2023-2024,Leaderbrand,Arable,Old native,Old native,Hand pollinated,20.2
+2023-2024,Leaderbrand,Arable,Old native,Old native,Open,17.01111111111111
+2023-2024,Leaderbrand,Arable,Old native,Old native,Closed,1.25
+2023-2024,Leaderbrand,Arable,Bare fence,On-farm bare fence,Hand pollinated,18.5
+2023-2024,Leaderbrand,Arable,Bare fence,On-farm bare fence,Open,12.7
+2023-2024,Leaderbrand,Arable,Bare fence,On-farm bare fence,Closed,0
+2023-2024,Limbrick,Arable,New native,One-year old native,Hand pollinated,20.75
+2023-2024,Limbrick,Arable,New native,One-year old native,Open,15.466666666666667
+2023-2024,Limbrick,Arable,Control farm,Off-farm bare fence,Hand pollinated,20.633333333333333
+2023-2024,Limbrick,Arable,Control farm,Off-farm bare fence,Open,20.266666666666666
+2023-2024,Limbrick,Arable,Control farm,Off-farm bare fence,Closed,1.4444444444444444
+2023-2024,Lochan Mor,Dairy,Old native,Old native,Hand pollinated,19
+2023-2024,Lochan Mor,Dairy,Old native,Old native,Open,18.916666666666664
+2023-2024,Lochan Mor,Dairy,Old native,Old native,Closed,1.1666666666666667
+2023-2024,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Hand pollinated,18.5
+2023-2024,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Open,12.344444444444445
+2023-2024,Lochan Mor,Dairy,Control farm,Off-farm bare fence,Closed,0.75
+2023-2024,Marr,Arable,Old native,Old native,Hand pollinated,16.666666666666668
+2023-2024,Marr,Arable,Old native,Old native,Open,16.85
+2023-2024,Marr,Arable,Old native,Old native,Closed,0.4666666666666667
+2023-2024,Marr,Arable,Bare fence,On-farm bare fence,Hand pollinated,19.166666666666668
+2023-2024,Marr,Arable,Bare fence,On-farm bare fence,Open,14.45
+2023-2024,Marr,Arable,Bare fence,On-farm bare fence,Closed,0.125
+2023-2024,Nutpoint,Arable,Old native,Old native,Hand pollinated,18.45
+2023-2024,Nutpoint,Arable,Old native,Old native,Open,17.1
+2023-2024,Nutpoint,Arable,Control farm,Off-farm bare fence,Hand pollinated,17.416666666666668
+2023-2024,Nutpoint,Arable,Control farm,Off-farm bare fence,Open,14.566666666666666
+2023-2024,Pareka,Dairy,Old native,Old native,Hand pollinated,15.333333333333334
+2023-2024,Pareka,Dairy,Old native,Old native,Open,17.055555555555557
+2023-2024,Pareka,Dairy,Control farm,Off-farm bare fence,Hand pollinated,17.833333333333332
+2023-2024,Pareka,Dairy,Control farm,Off-farm bare fence,Open,8.333333333333334
+2023-2024,Pareka,Dairy,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Pocock,Dairy,Old native,Old native,Hand pollinated,19.983333333333334
+2023-2024,Pocock,Dairy,Old native,Old native,Open,16.27777777777778
+2023-2024,Pocock,Dairy,Old native,Old native,Closed,0
+2023-2024,Pocock,Dairy,New native,Three-year old native,Hand pollinated,18.94642857142857
+2023-2024,Pocock,Dairy,New native,Three-year old native,Open,18.577777777777776
+2023-2024,Pocock,Dairy,New native,Three-year old native,Closed,0
+2023-2024,Pocock,Dairy,Bare fence,On-farm bare fence,Hand pollinated,18.38888888888889
+2023-2024,Pocock,Dairy,Bare fence,On-farm bare fence,Open,16.00952380952381
+2023-2024,Pocock,Dairy,Bare fence,On-farm bare fence,Closed,1.9583333333333333
+2023-2024,Terrace View,Dairy,Old native,Old native,Hand pollinated,21.3
+2023-2024,Terrace View,Dairy,Old native,Old native,Open,16.416666666666668
+2023-2024,Terrace View,Dairy,Old native,Old native,Closed,3
+2023-2024,Terrace View,Dairy,New native,Three-year old native,Hand pollinated,23.083333333333332
+2023-2024,Terrace View,Dairy,New native,Three-year old native,Open,17.933333333333334
+2023-2024,Terrace View,Dairy,New native,Three-year old native,Closed,1
+2023-2024,Terrace View,Dairy,Bare fence,On-farm bare fence,Hand pollinated,20.666666666666668
+2023-2024,Terrace View,Dairy,Bare fence,On-farm bare fence,Open,13.178571428571429
+2023-2024,Terrace View,Dairy,Bare fence,On-farm bare fence,Closed,0.1111111111111111
+2023-2024,Terrace View,Dairy,Control farm,Off-farm bare fence,Hand pollinated,18.166666666666668
+2023-2024,Terrace View,Dairy,Control farm,Off-farm bare fence,Open,12.1
+2023-2024,Terrace View,Dairy,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Tweed,Arable,New native,Three-year old native,Hand pollinated,21.77777777777778
+2023-2024,Tweed,Arable,New native,Three-year old native,Open,20.166666666666668
+2023-2024,Tweed,Arable,New native,Three-year old native,Closed,1
+2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,17.96666666666667
+2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Open,15
+2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Wakanui,Arable,New native,Three-year old native,Hand pollinated,15.816666666666666
+2023-2024,Wakanui,Arable,New native,Three-year old native,Open,16.566666666666666
+2023-2024,Ward,Arable,Old native,Old native,Hand pollinated,18.433333333333334
+2023-2024,Ward,Arable,Old native,Old native,Open,16.875
+2023-2024,Ward,Arable,Old native,Old native,Closed,0
+2023-2024,Ward,Arable,Bare fence,On-farm bare fence,Hand pollinated,18.166666666666664
+2023-2024,Ward,Arable,Bare fence,On-farm bare fence,Open,11.958333333333332
+2023-2024,Ward,Arable,Bare fence,On-farm bare fence,Closed,0

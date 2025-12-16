@@ -11,7 +11,7 @@
 
 <meta name="author" content="Heather Jenkins" />
 
-<meta name="date" content="2025-11-13" />
+<meta name="date" content="2025-12-16" />
 
 <title>B4BI Pak Choi data cleaning and preprocessing</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">B4BI Pak Choi data cleaning and
 preprocessing</h1>
 <h4 class="author">Heather Jenkins</h4>
-<h4 class="date">13 November 2025</h4>
+<h4 class="date">16 December 2025</h4>
 
 </div>
 
@@ -1500,32 +1500,36 @@ and pollinator datasets.</p>
 <h2>Data with replicates</h2>
 <p>The ‘main’ file is</p>
 <ul>
-<li>“B4BI_Pak-choi_seed_data_for_Heather.xlsx”</li>
+<li>“Copy of B4BI_Pak-choi_seed_data_for_Heather (BH edit).xlsx”</li>
 </ul>
+<p>This updated file has a new column ‘Native_new_age’, and also a bunch
+of farms with ‘Control_farm = Simplified_Boundary’ have been fixed
+(previously, these were mislabeled as ‘Bare_fence’ and the fix was done
+with code).</p>
 <p>The following file is used to add the Type_of_farm column (Arable or
 Dairy):</p>
 <ul>
 <li>“Farm type and treatment for pak choi Heather update.xlsx”</li>
 </ul>
-<p>The data is read in and some of the columns removed and renamed
-(after consulting with Brad). The garden data is also removed on Brad’s
-instruction.</p>
-<pre class="r"><code>pc &lt;- read_excel(&quot;Excel_files_from_Brad/B4BI_Pak_choi_seed_data_for_Heather.xlsx&quot;) %&gt;% 
-  mutate(Simplified_Boundary=case_when(
-    Farm==&quot;Ahuriri&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
-    Farm==&quot;Ashford_1&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;, 
-    Farm==&quot;FAR&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
-    Farm==&quot;Limbrick&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
-    Farm==&quot;Nutpoint&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
-    TRUE ~ Simplified_Boundary
-  )) %&gt;%
+<p>The data is read in, and some of the columns are removed or renamed.
+The garden data is also removed on Brad’s instruction.</p>
+<pre class="r"><code>pc &lt;- read_excel(&quot;Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heather (BH edit).xlsx&quot;) %&gt;% 
+  # mutate(Simplified_Boundary=case_when(
+  #   Farm==&quot;Ahuriri&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
+  #   Farm==&quot;Ashford_1&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;, 
+  #   Farm==&quot;FAR&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
+  #   Farm==&quot;Limbrick&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
+  #   Farm==&quot;Nutpoint&quot; &amp; Simplified_Boundary==&quot;Bare_fence&quot; ~ &quot;Control_farm&quot;,
+  #   TRUE ~ Simplified_Boundary
+  # )) %&gt;%
   mutate(Year=factor(Year), 
          Farm=factor(Farm),
          Property_Grouping=factor(Property_Grouping),
          PK_Boundary=factor(PK_Boundary),
          Simplified_Boundary=factor(Simplified_Boundary),
          Very_Simplified_Boundary=factor(Very_Simplified_Boundary),
-         Treatment=factor(Treatment)) %&gt;%
+         Treatment=factor(Treatment),
+         Native_new_age=factor(Native_new_age)) %&gt;%
   dplyr::select(-`Number...1`, -Surveyblock, -Survey_Date, -Survey_Date_Text, -Seed_count_date) %&gt;%
   rename(Rep=`Number...15`, Number_of_Pods=`Number pods`, Pod_number=`Pod #`) %&gt;%
   filter(!is.na(`Seed viable`)) %&gt;%
@@ -1537,14 +1541,30 @@ instruction.</p>
                                         &quot;Old native&quot;=&quot;Old_Native&quot;,
                                         &quot;New native&quot;=&quot;New_Native&quot;,
                                         &quot;Bare fence&quot;=&quot;Bare_fence&quot;,
-                                        &quot;Control farm&quot;=&quot;Control_farm&quot;
-                                        )) %&gt;%
+                                        &quot;Control farm&quot;=&quot;Control_farm&quot;),
+         Native_new_age=fct_recode(Native_new_age,
+                                   &quot;Old native&quot;=&quot;Old&quot;,
+                                   &quot;One-year old native&quot;=&quot;one year native&quot;,
+                                   &quot;Two-year old native&quot;=&quot;two year native&quot;,
+                                   &quot;Three-year old native&quot;=&quot;three year native&quot;,
+                                   &quot;On-farm bare fence&quot;=&quot;On-farm bare&quot;,
+                                   &quot;Off-farm bare fence&quot;=&quot;Off-farm bare&quot;
+                                   )) %&gt;%
   mutate(Simplified_Boundary=fct_relevel(Simplified_Boundary,
                                         &quot;Old native&quot;,
                                         &quot;New native&quot;,
                                         &quot;Bare fence&quot;,
                                         &quot;Control farm&quot;
-                                        )) %&gt;%
+                                        ),
+         Native_new_age=fct_relevel(Native_new_age,
+                                   &quot;Old native&quot;,
+                                   &quot;Three-year old native&quot;,
+                                   &quot;Two-year old native&quot;,
+                                   &quot;One-year old native&quot;,
+                                   &quot;On-farm bare fence&quot;,
+                                   &quot;Off-farm bare fence&quot;,
+                                    &quot;Garden&quot;
+                                    )) %&gt;%
   mutate(Farm=fct_recode(Farm,
                          &quot;Ashford 1&quot;=&quot;Ashford_1&quot;,
                         &quot;Lochan Mor&quot;=&quot;Lochan_Mor&quot;,
@@ -1561,13 +1581,12 @@ dairy_arable &lt;- read_excel(&quot;Excel_files_from_Brad/Farm type and treatmen
   mutate(Simplified_Boundary=fct_recode(Simplified_Boundary,
                                         &quot;Old native&quot;=&quot;Old Native&quot;,
                                         &quot;New native&quot;=&quot;New Native&quot;
-                                        )) %&gt;%
+                                   )) %&gt;%
   mutate(Simplified_Boundary=fct_relevel(Simplified_Boundary,
                                         &quot;Old native&quot;,
                                         &quot;New native&quot;,
                                         &quot;Bare fence&quot;,
-                                        &quot;Control farm&quot;
-                                        )) 
+                                        &quot;Control farm&quot;))
 
 # table(dairy_arable$Farm, dairy_arable$Simplified_Boundary)
 
@@ -1576,21 +1595,22 @@ pc &lt;- pc %&gt;% left_join(dairy_arable, by=c(&quot;Farm&quot;, &quot;Simplifi
 
 rm(dairy_arable)
 str(pc)</code></pre>
-<pre><code>## tibble [4,316 × 15] (S3: tbl_df/tbl/data.frame)
+<pre><code>## tibble [4,315 × 16] (S3: tbl_df/tbl/data.frame)
 ##  $ Year                    : Factor w/ 3 levels &quot;2021-2022&quot;,&quot;2022-2023&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ Farm                    : Factor w/ 19 levels &quot;Ahuriri&quot;,&quot;Ashford 1&quot;,..: 6 6 6 6 6 6 6 6 6 6 ...
 ##  $ Property_Grouping       : Factor w/ 18 levels &quot;Ahuriri&quot;,&quot;Ashford_1&quot;,..: 6 6 6 6 6 6 6 6 6 6 ...
 ##  $ PK_Boundary             : Factor w/ 10 levels &quot;Bare_fence&quot;,&quot;Control_farm&quot;,..: 1 1 1 1 1 1 1 2 2 2 ...
 ##  $ Simplified_Boundary     : Factor w/ 4 levels &quot;Old native&quot;,&quot;New native&quot;,..: 3 3 3 3 3 3 3 4 4 4 ...
 ##  $ Very_Simplified_Boundary: Factor w/ 2 levels &quot;Bare_fence&quot;,&quot;Mixed_native&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ Planting_date           : chr [1:4316] &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; ...
+##  $ Planting_date           : chr [1:4315] &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; ...
 ##  $ Treatment               : Factor w/ 3 levels &quot;Hand pollinated&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ Colour                  : logi [1:4316] NA NA NA NA NA NA ...
-##  $ Rep                     : num [1:4316] 2 2 2 2 1 1 1 2 2 2 ...
-##  $ Number_of_Pods          : chr [1:4316] &quot;10&quot; &quot;10&quot; &quot;10&quot; &quot;10&quot; ...
-##  $ Pod_number              : chr [1:4316] &quot;7&quot; &quot;10&quot; &quot;3&quot; &quot;1&quot; ...
-##  $ Seed viable             : num [1:4316] 13 12 12 10 13 15 16 16 11 12 ...
-##  $ Seed inviable           : num [1:4316] 0 0 1 0 0 0 0 0 0 0 ...
+##  $ Colour                  : logi [1:4315] NA NA NA NA NA NA ...
+##  $ Rep                     : num [1:4315] 2 2 2 2 1 1 1 2 2 2 ...
+##  $ Number_of_Pods          : chr [1:4315] &quot;10&quot; &quot;10&quot; &quot;10&quot; &quot;10&quot; ...
+##  $ Pod_number              : chr [1:4315] &quot;7&quot; &quot;10&quot; &quot;3&quot; &quot;1&quot; ...
+##  $ Seed viable             : num [1:4315] 13 12 12 10 13 15 16 16 11 12 ...
+##  $ Seed inviable           : num [1:4315] 0 0 1 0 0 0 0 0 0 0 ...
+##  $ Native_new_age          : Factor w/ 6 levels &quot;Old native&quot;,&quot;Three-year old native&quot;,..: 5 5 5 5 5 5 5 6 6 6 ...
 ##  $ Type_of_farm            : Factor w/ 2 levels &quot;Arable&quot;,&quot;Dairy&quot;: 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
 <p>This data is saved.</p>
 <pre class="r"><code>save(pc, file=&quot;Cleaned_datasets/pc_seed_data_cleaned.rda&quot;)
@@ -1603,14 +1623,14 @@ write_csv(pc, file=&quot;Cleaned_datasets/pc_seed_data_cleaned.csv&quot;)
 <h2>Summarised data</h2>
 <ul>
 <li>The data is grouped by Year, Farm, Type_of_farm,
-Simplified_Boundary, Treatment, Rep.<br />
+Simplified_Boundary, Native_new_age, Treatment, Rep.<br />
 </li>
 <li>The mean of the <code>Seed viable</code> is taken. This is the mean
 across all the pods for each rep. Note the number of pods for each Rep
 was quite variable.<br />
 </li>
 <li>Then the data is grouped by Year, Farm, Type_of_farm,
-Simplified_Boundary, Treatment.<br />
+Simplified_Boundary, Native_new_age, Treatment.<br />
 </li>
 <li>The mean seeds viable is calculated, so we get a mean over the
 Reps.<br />
@@ -1619,22 +1639,23 @@ Reps.<br />
 mean seed counts for each treatment where each rep has the same weight
 in the mean.<br />
 </li>
-<li>If we didn’t do the means with the two group_by steps when each pod
+<li>If we didn’t do the means with the two group_by steps then each pod
 would have the same weight in the mean.</li>
 </ul>
 <pre class="r"><code>pc_sum &lt;- pc %&gt;% 
-  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Treatment, Rep) %&gt;% 
+  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep) %&gt;% 
   summarise(Mean_seeds_viable=mean(`Seed viable`)) %&gt;%
-  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Treatment) %&gt;% 
+  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment) %&gt;% 
   summarise(Mean_seeds_viable=mean(Mean_seeds_viable)) %&gt;%
   ungroup()
 
 str(pc_sum)</code></pre>
-<pre><code>## tibble [319 × 6] (S3: tbl_df/tbl/data.frame)
+<pre><code>## tibble [319 × 7] (S3: tbl_df/tbl/data.frame)
 ##  $ Year               : Factor w/ 3 levels &quot;2021-2022&quot;,&quot;2022-2023&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ Farm               : Factor w/ 19 levels &quot;Ahuriri&quot;,&quot;Ashford 1&quot;,..: 1 1 1 1 1 2 2 2 2 2 ...
 ##  $ Type_of_farm       : Factor w/ 2 levels &quot;Arable&quot;,&quot;Dairy&quot;: 1 1 1 1 1 2 2 2 2 2 ...
 ##  $ Simplified_Boundary: Factor w/ 4 levels &quot;Old native&quot;,&quot;New native&quot;,..: 2 2 2 4 4 2 2 2 4 4 ...
+##  $ Native_new_age     : Factor w/ 6 levels &quot;Old native&quot;,&quot;Three-year old native&quot;,..: 4 4 4 6 6 4 4 4 6 6 ...
 ##  $ Treatment          : Factor w/ 3 levels &quot;Hand pollinated&quot;,..: 1 2 3 1 2 1 2 3 1 2 ...
 ##  $ Mean_seeds_viable  : num [1:319] 16.2 14.8 1 16.2 10.4 ...</code></pre>
 <p>This data is saved.</p>

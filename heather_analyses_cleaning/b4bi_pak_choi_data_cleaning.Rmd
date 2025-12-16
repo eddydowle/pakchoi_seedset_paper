@@ -31,31 +31,34 @@ This was performed using  `r version$version.string`. The *tidyverse* suite of p
 
 The 'main' file is
 
-+ "B4BI_Pak-choi_seed_data_for_Heather.xlsx"  
++ "Copy of B4BI_Pak-choi_seed_data_for_Heather (BH edit).xlsx"  
+
+This updated file has a new column 'Native_new_age', and also a bunch of farms with 'Control_farm = Simplified_Boundary' have been fixed (previously, these were mislabeled as 'Bare_fence' and the fix was done with code).
 
 The following file is used to add the Type_of_farm column (Arable or Dairy):
 
 + "Farm type and treatment for pak choi Heather update.xlsx"   
 
-The data is read in and some of the columns removed and renamed (after consulting with Brad). The garden data is also removed on Brad's instruction.
+The data is read in, and some of the columns are removed or renamed. The garden data is also removed on Brad's instruction.
 
 ```{r}
-pc <- read_excel("Excel_files_from_Brad/B4BI_Pak_choi_seed_data_for_Heather.xlsx") %>% 
-  mutate(Simplified_Boundary=case_when(
-    Farm=="Ahuriri" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
-    Farm=="Ashford_1" & Simplified_Boundary=="Bare_fence" ~ "Control_farm", 
-    Farm=="FAR" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
-    Farm=="Limbrick" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
-    Farm=="Nutpoint" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
-    TRUE ~ Simplified_Boundary
-  )) %>%
+pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heather (BH edit).xlsx") %>% 
+  # mutate(Simplified_Boundary=case_when(
+  #   Farm=="Ahuriri" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
+  #   Farm=="Ashford_1" & Simplified_Boundary=="Bare_fence" ~ "Control_farm", 
+  #   Farm=="FAR" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
+  #   Farm=="Limbrick" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
+  #   Farm=="Nutpoint" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
+  #   TRUE ~ Simplified_Boundary
+  # )) %>%
   mutate(Year=factor(Year), 
          Farm=factor(Farm),
          Property_Grouping=factor(Property_Grouping),
          PK_Boundary=factor(PK_Boundary),
          Simplified_Boundary=factor(Simplified_Boundary),
          Very_Simplified_Boundary=factor(Very_Simplified_Boundary),
-         Treatment=factor(Treatment)) %>%
+         Treatment=factor(Treatment),
+         Native_new_age=factor(Native_new_age)) %>%
   dplyr::select(-`Number...1`, -Surveyblock, -Survey_Date, -Survey_Date_Text, -Seed_count_date) %>%
   rename(Rep=`Number...15`, Number_of_Pods=`Number pods`, Pod_number=`Pod #`) %>%
   filter(!is.na(`Seed viable`)) %>%
@@ -67,14 +70,30 @@ pc <- read_excel("Excel_files_from_Brad/B4BI_Pak_choi_seed_data_for_Heather.xlsx
                                         "Old native"="Old_Native",
                                         "New native"="New_Native",
                                         "Bare fence"="Bare_fence",
-                                        "Control farm"="Control_farm"
-                                        )) %>%
+                                        "Control farm"="Control_farm"),
+         Native_new_age=fct_recode(Native_new_age,
+                                   "Old native"="Old",
+                                   "One-year old native"="one year native",
+                                   "Two-year old native"="two year native",
+                                   "Three-year old native"="three year native",
+                                   "On-farm bare fence"="On-farm bare",
+                                   "Off-farm bare fence"="Off-farm bare"
+                                   )) %>%
   mutate(Simplified_Boundary=fct_relevel(Simplified_Boundary,
                                         "Old native",
                                         "New native",
                                         "Bare fence",
                                         "Control farm"
-                                        )) %>%
+                                        ),
+         Native_new_age=fct_relevel(Native_new_age,
+                                   "Old native",
+                                   "Three-year old native",
+                                   "Two-year old native",
+                                   "One-year old native",
+                                   "On-farm bare fence",
+                                   "Off-farm bare fence",
+                                    "Garden"
+                                    )) %>%
   mutate(Farm=fct_recode(Farm,
                          "Ashford 1"="Ashford_1",
                         "Lochan Mor"="Lochan_Mor",
@@ -91,13 +110,12 @@ dairy_arable <- read_excel("Excel_files_from_Brad/Farm type and treatment for pa
   mutate(Simplified_Boundary=fct_recode(Simplified_Boundary,
                                         "Old native"="Old Native",
                                         "New native"="New Native"
-                                        )) %>%
+                                   )) %>%
   mutate(Simplified_Boundary=fct_relevel(Simplified_Boundary,
                                         "Old native",
                                         "New native",
                                         "Bare fence",
-                                        "Control farm"
-                                        )) 
+                                        "Control farm"))
 
 # table(dairy_arable$Farm, dairy_arable$Simplified_Boundary)
 
@@ -120,18 +138,18 @@ write_csv(pc, file="Cleaned_datasets/pc_seed_data_cleaned.csv")
 
 ## Summarised data
 
-+ The data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Treatment, Rep.     
++ The data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep.     
 + The mean of the `Seed viable` is taken. This is the mean across all the pods for each rep. Note the number of pods for each Rep was quite variable.  
-+ Then the data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Treatment.  
++ Then the data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment.  
 + The mean seeds viable is calculated, so we get a mean over the Reps.  
 + For each Year, Farm and Simplified_Boundary combination we have a mean seed counts for each treatment where each rep has the same weight in the mean.  
-+ If we didn't do the means with the two group_by steps when each pod would have the same weight in the mean.  
++ If we didn't do the means with the two group_by steps then each pod would have the same weight in the mean.  
 
 ```{r}
 pc_sum <- pc %>% 
-  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Treatment, Rep) %>% 
+  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep) %>% 
   summarise(Mean_seeds_viable=mean(`Seed viable`)) %>%
-  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Treatment) %>% 
+  group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment) %>% 
   summarise(Mean_seeds_viable=mean(Mean_seeds_viable)) %>%
   ungroup()
 

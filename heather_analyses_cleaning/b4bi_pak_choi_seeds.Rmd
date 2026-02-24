@@ -1,0 +1,733 @@
+---
+title: "B4BI Pak Choi Seed Data Graphs and Models"
+author: "Heather Jenkins"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+<!-- output: -->
+<!--   word_document: -->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=4.5, dpi=600, warning=FALSE, message=FALSE, echo=FALSE)
+options(scipen=999)
+library(lme4)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(dplyr)
+library(car)
+library(emmeans)
+library(predictmeans)
+library(stringr)
+library(GGally)
+library(gridExtra)
+library(pander)
+library(kableExtra)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'left', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+options(knitr.kable.NA = '')
+```
+
+
+# Overview
+
+This document contains some analysis of the previously cleaned seed data.
+
+This analysis was performed using  `r version$version.string`. The *tidyverse*
+suite of packages was used for data manipulation and visualisation. The
+*emmeans* package was used for model predictions.
+
+# Data Loading
+
+The cleaned data is read in. There is the full dataset followed by the dataset that has been summarised (over the unbalanced reps).
+
+<br>
+
+```{r}
+load(file="Cleaned_datasets/pc_seed_data_cleaned.rda")
+str(pc)
+```
+
+<br>
+
+Next the previously saved summarised data is loaded.
+
+<br>
+
+```{r}
+load(file="Cleaned_datasets/pc_seed_data_summarised_cleaned.rda")
+str(pc_sum)
+```
+
+<br>
+
+Next we further summarise the data and calculate the means for each Year,
+Simplified_Boundary and Treatment combination (the black dots in the second and third graphs below).
+
+```{r}
+pc_stats <- pc_sum %>% group_by(Year, Simplified_Boundary, Treatment) %>% summarise(mean_viable=mean(Mean_seeds_viable)) %>%
+  ungroup()
+```
+
+# Graphs
+
+## With the farms shown
+
+```{r}
+pc_sum %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Farm)) + 
+  geom_jitter(height=0, width=0.3, size=1.25) + 
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  theme(text = element_text(size = 10)) + theme(legend.key.size = unit(0.3, 'cm')) +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  labs(x="", y="Average number of viable seeds per farm")
+```
+
+<br>
+
+The details of the particular farms is not of interest so we remove this information and add the overall means to the plots.
+
+## With the overall raw means
+
+The two plots below are the same, just with minor differences (HP abbreviation and the size of the points).
+
+<br>
+
+```{r}
+set.seed(1234)
+pc_sum %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1.25) + 
+  geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  labs(x="", y="Mean number of viable seeds") +
+  theme(axis.text.x = element_text(angle=45, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none")
+```
+
+<br>
+
+```{r, fig.height=4.25}
+pc_stats <- pc_stats %>% mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"))
+
+set.seed(1234)
+pc_sum %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  labs(x="", y="Mean number of viable seeds") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +
+  theme(legend.position = "none")
+```
+
+## Dairy or Arable added to the graphs
+
+First we look at the data in a single graph and then with the farm types separated.
+
+```{r, fig.height=4.75}
+set.seed(1989)
+pc_sum %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  # geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("darkred", "#F8766D", "#CD9600", "#00BA38", "#C77CFF", "#619CFF")) +
+  theme(legend.position = "bottom")
+```
+
+<br>
+
+```{r}
+pc_stats_a <- pc_sum %>% 
+  filter(Type_of_farm=="Arable") %>% droplevels() %>% 
+  group_by(Year, Simplified_Boundary, Treatment) %>% summarise(mean_viable=mean(Mean_seeds_viable)) %>%
+  ungroup() %>%
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"))
+
+pc_stats_d <- pc_sum %>% 
+  filter(Type_of_farm!="Arable") %>% droplevels() %>% 
+  group_by(Year, Simplified_Boundary, Treatment) %>% summarise(mean_viable=mean(Mean_seeds_viable)) %>%
+  ungroup() %>%
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"))
+
+set.seed(1989)
+pc_sum %>% 
+  filter(Type_of_farm=="Arable") %>% droplevels() %>%
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats_a) +
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  labs(x="", y="Mean number of viable seeds",  title="Arable farms") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) + 
+  theme(legend.position = "none")
+
+set.seed(1989)
+pc_sum %>% 
+  filter(Type_of_farm!="Arable") %>% droplevels() %>%
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats_d) +
+  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  labs(x="", y="Mean number of viable seeds", title="Dairy farms") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) + 
+  theme(legend.position = "none")
+```
+
+# Modelling
+
+## Comments
+
++ We remove the Control farms and the Closed treatment so we can see if there is a difference between HP and Open.  
++ Fitting a zero-inflated model with the Closed treatment data included did not converge. Since this was not the "main comparison of interest" I did not spend a lot time trying to make it work.  
++ The data is separated into Arable and Dairy for modelling purposes.   
++ Again I ran into problems with trying to fit a single model.  
+
+## Model descriptions
+
+We fit linear mixed-effect models to the two sets of data. The response is
+Mean_seeds_viable. The fixed-effects are Treatment and Simplified_Boundary plus
+their two-way interaction. Year is not really of interest (I hope?) so we make
+it a random effect. There is also a random effect for Farm nested in Year. This
+means that there are 3 levels to the Year random effect, and 24 for the
+Farm:Year random effect (and it doesn't matter that we don't have data from
+every farm for each year).
+
+## Graphs of data used in models
+
+```{r, fig.height=4.25}
+pc_mod <- pc_sum %>% 
+  filter(Simplified_Boundary != "Control farm") %>% 
+  filter(Treatment != "Closed") %>% 
+  droplevels()
+
+pc_mod_a <- pc_sum %>% 
+  filter(Simplified_Boundary != "Control farm") %>% 
+  filter(Treatment != "Closed") %>% 
+  filter(Type_of_farm == "Arable") %>% 
+  droplevels()
+
+pc_mod_d <- pc_sum %>% 
+  filter(Simplified_Boundary != "Control farm") %>% 
+  filter(Treatment != "Closed") %>% 
+  filter(Type_of_farm != "Arable") %>% 
+  droplevels()
+
+# with(pc_mod_a, table(Farm, Year))
+# with(pc_mod, table(Farm, Treatment))
+# with(pc_mod, table(Farm, Simplified_Boundary))
+# with(pc_mod, table(Farm, Type_of_farm))
+# 
+# str(pc_mod_a)
+# with(pc_mod_a, table(Simplified_Boundary, Year)*0.5)
+
+set.seed(1989)
+pc_mod_a %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Arable farms, data considered for use in model (there are outliers)") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("darkred", "#CD9600")) +
+  theme(legend.position = "none")
+
+set.seed(1989)
+pc_mod_d %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Dairy farms, data used in model") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("#F8766D", "#00BA38")) +
+  theme(legend.position = "none")
+```
+
+```{r, fig.height=4.25}
+mod.lm <- lmer(Mean_seeds_viable ~ Simplified_Boundary*Treatment + (1|Year/Farm), data=pc_mod_a)
+# residplot(mod.lm, newwd = FALSE)
+# Outliers!
+pc_mod_a_sub <- pc_mod_a %>% 
+  filter(Mean_seeds_viable > 5) %>% 
+  filter(!(Mean_seeds_viable==9.5 & Treatment=="Hand pollinated")) 
+  
+set.seed(1989)
+pc_mod_a_sub %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Arable farms, data used in model (2 outliers removed)") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("darkred", "#CD9600")) +
+  theme(legend.position = "none")
+```
+
+## Results Arable farms
+
+Two outliers were removed from the data to better satisfy modelling assumptions.
+
+If the outliers are included in the model, the story is the same (results not shown).
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Year/Farm), data=pc_mod_a_sub)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Farm/Year), data=pc_mod_a_sub)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Farm)+(1|Year), data=pc_mod_a_sub)
+
+# summary(mod.lm)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+# AIC(mod.lm); BIC(mod.lm)
+#residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table. Note that the post-hoc pairwise comparison p-values were adjusted
+using the False Discovery Rate (FDR) correction to account for multiple tests.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Simplified_Boundary ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+# emmip(mod.lm, Treatment ~ Simplified_Boundary, 
+#       tlab="",
+#       xlab="", 
+#       ylab="Predicted mean number of viable seeds", 
+#       type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Simplified_Boundary comparisons for each of the Treatments. There is no difference for Hand pollinated.
+For Open the New native and Old native each have approximately 3 more viable seeds on average than the Bare fence. There is no difference between New native and Old native.
+
+## Results Dairy farms
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+mod.lm <- lmer(Mean_seeds_viable ~ Simplified_Boundary*Treatment + (1|Year/Farm), data=pc_mod_d)
+
+# summary(mod.lm)
+kable(Anova(mod.lm),digits=3, format = "pandoc")
+# AIC(mod.lm); BIC(mod.lm)
+# residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Simplified_Boundary ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Simplified_Boundary comparisons for each of the Treatments. There is no difference for Hand pollinated.
+
+For Open, the New native have approximately 3 more viable seeds on average than the Bare fence. 
+The Old native have approximately 4 more viable seeds on average than the Bare fence. 
+There is no difference between New native and Old native.
+
+# UPDATED Modelling ('New Native' & Year one-to-one relationship)
+
+We repeat the above with 'one year native' and 'two year native' in 2023-2024 removed. So 'New native' only has
+
++ One year old in 2021-2022  
++ Two year old in 2022-2023  
++ Three year old in 2023-2024  
+
+Note that is data is all from Arable farms (Garrickfield and Limbrick).
+
+Tables of counts before and after the four extra observations are removed are below:
+
+```{r}
+# str(pc_mod)
+table(pc_mod$Year, pc_mod$Native_new_age)
+pc_mod <- pc_mod %>% filter( !( (Native_new_age %in% c("one year native", "two year native")) & Year=="2023-2024" ) )
+table(pc_mod$Year, pc_mod$Native_new_age)
+```
+
+## Model descriptions
+
+We fit linear mixed-effect models to the two sets of data. The response is
+Mean_seeds_viable. The fixed-effects are Treatment and Simplified_Boundary plus
+their two-way interaction. Year is not really of interest (I hope?) so we make
+it a random effect. There is also a random effect for Farm nested in Year. This
+means that there are 3 levels to the Year random effect, and 24 for the
+Farm:Year random effect (and it doesn't matter that we don't have data from
+every farm for each year).
+
+## Graphs of data used in models
+
+```{r, fig.height=4.25}
+pc_mod_a <- pc_mod %>% 
+  filter(Type_of_farm == "Arable") %>% 
+  droplevels()
+
+pc_mod_d <- pc_mod %>% 
+  filter(Type_of_farm != "Arable") %>% 
+  droplevels()
+
+set.seed(1989)
+pc_mod_a %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Arable farms, data considered for use in model (there are outliers)") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("darkred", "#CD9600")) +
+  theme(legend.position = "none")
+
+set.seed(1989)
+pc_mod_d %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Dairy farms, data used in model") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("#F8766D", "#00BA38")) +
+  theme(legend.position = "none")
+```
+
+```{r, fig.height=4.25}
+mod.lm <- lmer(Mean_seeds_viable ~ Simplified_Boundary*Treatment + (1|Year/Farm), data=pc_mod_a)
+# residplot(mod.lm, newwd = FALSE)
+# Outliers!
+pc_mod_a_sub <- pc_mod_a %>% 
+  filter(Mean_seeds_viable > 5) %>% 
+  filter(!(Mean_seeds_viable==9.5 & Treatment=="Hand pollinated")) 
+  
+set.seed(1989)
+pc_mod_a_sub %>% 
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment)) + 
+  geom_jitter(height=0, width=0.3, size=1) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw() +
+  ylim(c(0,22)) +
+  labs(x="", y="Mean number of viable seeds", color="", title="Arable farms, data used in model (2 outliers removed)") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values=c("darkred", "#CD9600")) +
+  theme(legend.position = "none")
+```
+
+## Results Arable farms
+
+Two outliers were removed from the data to better satisfy modelling assumptions.
+
+If the outliers are included in the model, the story is the same (results not shown).
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Year/Farm), data=pc_mod_a_sub)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Farm/Year), data=pc_mod_a_sub)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Farm)+(1|Year), data=pc_mod_a_sub)
+
+# summary(mod.lm)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+# AIC(mod.lm); BIC(mod.lm)
+#residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table. Note that the post-hoc pairwise comparison p-values were adjusted
+using the False Discovery Rate (FDR) correction to account for multiple tests.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Simplified_Boundary ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+# emmip(mod.lm, Treatment ~ Simplified_Boundary, 
+#       tlab="",
+#       xlab="", 
+#       ylab="Predicted mean number of viable seeds", 
+#       type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Simplified_Boundary comparisons for each of the Treatments. There is no difference for Hand pollinated.
+For Open the New native and Old native each have approximately 3-4 more viable
+seeds on average than the Bare fence. There is no difference between New native
+and Old native.
+
+## Results Dairy farms (unchanged)
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+mod.lm <- lmer(Mean_seeds_viable ~ Simplified_Boundary*Treatment + (1|Year/Farm), data=pc_mod_d)
+
+# summary(mod.lm)
+kable(Anova(mod.lm),digits=3, format = "pandoc")
+# AIC(mod.lm); BIC(mod.lm)
+# residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Simplified_Boundary ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Simplified_Boundary comparisons for each of the Treatments. There is no difference for Hand pollinated.
+
+For Open, the New native have approximately 3 more viable seeds on average than the Bare fence. 
+The Old native have approximately 4 more viable seeds on average than the Bare fence. 
+There is no difference between New native and Old native.
+
+# NEW Modelling with Age of New Natives
+
+## Model descriptions
+
+We fit linear mixed-effect models to the two sets of data. The response is
+Mean_seeds_viable. The fixed-effects are Treatment and Native_new_age plus their
+two-way interaction. Year is random effect. There is also a random effect for
+Farm nested in Year. This means that there are 3 levels to the Year random
+effect, and 24 for the Farm:Year random effect (and it doesn't matter that we
+don't have data from every farm for each year).
+
+## Results Arable farms
+
+Two outliers were removed from the data to better satisfy modelling assumptions.
+
+If the outliers are included in the model, the story is the same (results not shown).
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Year/Farm), data=pc_mod_a_sub)
+mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Native_new_age + (1|Year/Farm), data=pc_mod_a_sub)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Native_new_age + (1|Farm)+(1|Year), data=pc_mod_a_sub)
+
+# summary(mod.lm)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+#residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table. Note that the post-hoc pairwise comparison p-values were adjusted
+using the False Discovery Rate (FDR) correction to account for multiple tests.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Native_new_age ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+# emmip(mod.lm, Treatment ~ Simplified_Boundary, 
+#       tlab="",
+#       xlab="", 
+#       ylab="Predicted mean number of viable seeds", 
+#       type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~Native_new_age|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Native_new_age comparisons for each of the Treatments. There are no differences for Hand pollinated.
+For Open, the 'Two-year old native', 'Three-year old native' and 'Old native' each have 3-4 more viable
+seeds on average than 'On-farm bare fence'. There are other statistically significant differences. 
+
+## Results Dairy farms
+
+The ANOVA table is:
+
+<br>
+
+```{r}
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary + (1|Year/Farm), data=pc_mod_d)
+mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Native_new_age + (1|Year/Farm), data=pc_mod_d)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Native_new_age + (1|Farm)+(1|Year), data=pc_mod_d)
+# summary(mod.lm)
+
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+#residplot(mod.lm, newwd = FALSE)
+```
+
+<br>
+
+The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
+in a table.
+
+<br>
+
+```{r, fig.height=2.5}
+emmip(mod.lm, Native_new_age ~ Treatment, 
+      tlab="",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE) + theme_bw()
+
+emm <- emmeans(mod.lm, ~ Native_new_age|Treatment, adjust="fdr") 
+emm %>% as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  rename(`Predicted mean`=emmean) %>%
+  kable(format="pandoc", digits=2)
+```
+
+<br>
+
+```{r, fig.height=3.75}
+plot(emm) + labs(x="Predicted mean number of viable seeds", y="")
+contrast(emm, method="pairwise", adjust="fdr", type = "response")
+# mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
+# mod.pm$mean_table
+```
+
+<br>
+
+The table above shows pairwise Native_new_age comparisons for each of the
+Treatments. There is no difference for 'Hand pollinated'.
+
+For Open, 'Old native' and 'Three-year old native' each have 4 more viable seeds
+on average than the 'On-face bare fence'. There are no other statistically different pairs.
+

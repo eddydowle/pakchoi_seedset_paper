@@ -1,0 +1,2142 @@
+---
+title: "Final pakchoi diversity analyses"
+author: "Eddy Dowle"
+date: "2025-09-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lme4)
+library(readxl)
+library(svglite)
+library(vegan)
+library(iNEXT.3D)
+library(ggpubr)
+library(lmerTest)
+library(emmeans)
+library(RLRsim)
+library(glmmTMB)
+library(BiodiversityR)
+library(ggpmisc)
+library(pairwiseAdonis)
+library(ggrepel)
+library(ggvegan)
+library(ggforce)
+library(knitr)
+library(modelsummary)
+library(gtsummary)
+library(ggeffects)
+library(DHARMa)
+```
+
+## Pak choi 
+
+Diversity analyses, and summary plots
+
+```{r cars}
+#corrected dataset with raw counts
+data<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Copy of Pak choi pollinators raw visits Brad correctedupdatedEddy.xlsx',sheet='Pak choi raw visits')
+
+#filter out things that are 2018 in Boundary age column
+data<-data %>% filter(`Boundary age`!=2018)
+#there is two add balls that only are recorded in one season can drop them here with this: 
+data<-data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='one year old'))
+data<-data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='two year old'))
+
+
+brads_col_2<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Eddy Pie chart short.xlsx',sheet='Colours')
+#tidy up some names etc
+data$Boundary_descriptor<-gsub('one year old','One year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('two year old','Two year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('three year old','Three year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Bare_fence','On-farm bare fence',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Control_farm','Off-farm bare fence',data$Boundary_descriptor)
+
+#summarising counts to clean up dataset etc for box plots
+data_box<-data %>% select(-`Broad Insect category`,-Origin,-`Boundary age`,-`Sum of Insect_Count`,-`Flower count`) %>% group_by(`Farm type`,Farm_name,Season,Boundary_descriptor,`Insect key number`,`New Inseck key name`) %>% summarise(`Sum of Insects/100 flowers`=sum(`Sum of Insects/100 flowers`) )
+
+#counts per for below graph of abundance estimate per site
+data_per<-data_box%>% mutate(Boundary_year=paste0(Boundary_descriptor,'_',Season)) %>% select(-`Insect key number`,-Boundary_descriptor,-Season) %>% group_by(`Farm type`,Farm_name,Boundary_year,`New Inseck key name`) %>% summarise(total_count=sum(`Sum of Insects/100 flowers`)) %>% ungroup() %>% group_by(`Farm type`,Farm_name,Boundary_year) %>% mutate(per=100*total_count/sum(total_count)) %>% ungroup()
+
+data_per %>%   ggplot(aes(x = Boundary_year, y = per, fill = `New Inseck key name`)) +
+  geom_bar(position='stack',stat='identity',width=0.4) +
+  facet_grid(`Farm type`~Farm_name, scales = "free", space = "free") +
+  theme_bw(base_size = 12) +
+  theme(strip.text.x = element_text(angle = 90,size=7),axis.text.x = element_text(angle = 90,size=7,hjust=1))+
+  ggtitle(paste('test'))+
+ theme(legend.position="none")
+
+
+mydf<- data_box %>% mutate(Boundary_year=paste0(Boundary_descriptor,'_',Season))
+
+#setting up for brads colour scheme
+#relevel to brads order
+brads_col_2$`New Inseck key name` <- factor(brads_col_2$`New Inseck key name`, levels=brads_col_2$`New Inseck key name`[order(brads_col_2$`Insect key number`)], ordered=TRUE)
+
+#relevel to brads order
+mydf$`New Inseck key name` <- forcats::fct_relevel(mydf$`New Inseck key name` ,levels(brads_col_2$`New Inseck key name`))
+
+```
+
+## Diversity statistics
+
+Bar charts to view diversity over different groups
+
+```{r pressure, echo=T}
+##bar chart raw abundances .....
+#cant just be raw count
+#needs to be average by sampling number
+
+
+mydf_byboundary_farm_count<-mydf %>% select(-`Insect key number`,-`Farm type`,-Boundary_year) %>% mutate(unique_ob=paste(Boundary_descriptor,Farm_name,Season)) %>% select(-Farm_name,-Season) %>% group_by(Boundary_descriptor,`New Inseck key name`) %>% summarise(count_farms_perobs=sum(`Sum of Insects/100 flowers`)/n_distinct(unique_ob)) 
+mydf_byboundary_farm_count$Boundary_descriptor <- factor(mydf_byboundary_farm_count$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+mydf_byboundary_farm_count %>%   ggplot(aes(x = Boundary_descriptor, y = count_farms_perobs, fill = `New Inseck key name`)) +
+  geom_bar(position='stack',stat='identity',width=0.4) +
+  # facet_grid(`Farm type`~Farm_name, scales = "free", space = "free") +
+  theme_bw(base_size = 12) +
+  theme(strip.text.x = element_text(angle = 90,size=7),axis.text.x = element_text(angle = 90,size=7,hjust=1))+
+  scale_fill_manual(values=with(brads_col_2,setNames(Brad_colours,`New Inseck key name`)))+
+  ggtitle(paste('Counts by boundary'))+ylab('Average count per 100 flowers')+xlab('Boundary type')+
+  labs(fill = "Insect  group")+
+  theme(
+    legend.text = element_text(size = 6), 
+    legend.title = element_text(size = 6),
+    legend.key.size = unit(1,"line"))  
+
+#bar chart relative abundances % bare fence, control year 1, year 2 year3 and old
+mydf_byboundary<-mydf%>% select(-`Insect key number`,-Season,-`Farm type`,-Farm_name,-Boundary_year) %>% group_by(Boundary_descriptor,`New Inseck key name`) %>% summarise(total_count=sum(`Sum of Insects/100 flowers`)) %>% ungroup() %>% group_by(Boundary_descriptor) %>% mutate(per=100*total_count/sum(total_count)) %>% ungroup()
+
+#recolour and tidy
+mydf_byboundary$Boundary_descriptor <- factor(mydf_byboundary$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+mydf_byboundary %>%   ggplot(aes(x = Boundary_descriptor, y = per, fill = `New Inseck key name`)) +
+  geom_bar(position='stack',stat='identity',width=0.4) +
+  # facet_grid(`Farm type`~Farm_name, scales = "free", space = "free") +
+  theme_bw(base_size = 12) +
+  theme(strip.text.x = element_text(angle = 90,size=7),axis.text.x = element_text(angle = 90,size=7,hjust=1),plot.title = element_text(size = 13))+
+  scale_fill_manual(values=with(brads_col_2,setNames(Brad_colours,`New Inseck key name`)))+
+  ggtitle(paste('Relative abundance by boundary'))+ylab('Proportion')+xlab('Boundary type')+
+  labs(fill = "Insect  group")+
+  theme(
+    legend.text = element_text(size = 6), 
+    legend.title = element_text(size = 6),
+    legend.key.size = unit(1,"line"))  
+
+```
+
+## Bar charts split by season
+
+Alpha diversity (below) suggests there might be a role of season, so just splitting that out here. Season makes sense as the second year had a lot less counts than the first. 
+
+```{r bar_season, echo=T}
+#Adding in season
+##bar chart raw abundances .....
+#cant just be raw count
+#needs to be average by sampling number
+
+mydf_byboundary_farm_count_yr<-mydf %>% select(-`Insect key number`,-`Farm type`,-Boundary_descriptor,-Season) %>% mutate(unique_ob=paste(Boundary_year,Farm_name)) %>% select(-Farm_name) %>% group_by(Boundary_year,`New Inseck key name`) %>% summarise(count_farms_perobs=sum(`Sum of Insects/100 flowers`)/n_distinct(unique_ob)) 
+
+mydf_byboundary_farm_count_yr<-mydf_byboundary_farm_count_yr %>% separate_wider_delim(Boundary_year,'_',names=c("Boundary_descriptor","Season"))
+
+mydf_byboundary_farm_count_yr$Boundary_descriptor <- factor(mydf_byboundary_farm_count_yr$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+mydf_byboundary_farm_count_yr %>%   ggplot(aes(x = Boundary_descriptor, y = count_farms_perobs, fill = `New Inseck key name`)) +
+  geom_bar(position='stack',stat='identity',width=0.4) +
+  facet_grid(~Season, scales = "free") +
+  theme_bw(base_size = 12) +
+  theme(strip.text.x = element_text(angle = 0,size=7),axis.text.x = element_text(angle = 90,size=7,hjust=1),plot.title = element_text(size = 13))+
+  scale_fill_manual(values=with(brads_col_2,setNames(Brad_colours,`New Inseck key name`)))+
+  ggtitle(paste('Counts by boundary'))+ylab('Average count per 100 flowers')+xlab('Boundary type')+
+  labs(fill = "Insect  group")+
+  theme(
+    legend.text = element_text(size = 6), 
+    legend.title = element_text(size = 6),
+    legend.key.size = unit(1,"line"))  
+
+#adding in season 
+#bar chart relative abundances % bare fence, control year 1, year 2 year3 and old
+
+mydf_byboundary_yr<-mydf%>% select(-`Insect key number`,-Season,-`Farm type`,-Farm_name,-Boundary_descriptor) %>% group_by(Boundary_year,`New Inseck key name`) %>% summarise(total_count=sum(`Sum of Insects/100 flowers`)) %>% ungroup() %>% group_by(Boundary_year) %>% mutate(per=100*total_count/sum(total_count)) %>% ungroup()
+
+mydf_byboundary_yr<-mydf_byboundary_yr %>% separate_wider_delim(Boundary_year,'_',names=c("Boundary_descriptor","Season"))
+
+#recolour and tidy
+mydf_byboundary_yr$Boundary_descriptor <- factor(mydf_byboundary_yr$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+mydf_byboundary_yr %>%   ggplot(aes(x = Boundary_descriptor, y = per, fill = `New Inseck key name`)) +
+  geom_bar(position='stack',stat='identity',width=0.4) +
+  facet_wrap(~Season,scales="free") +
+  theme_bw(base_size = 12) +
+  theme(strip.text.x = element_text(angle = 0,size=7),axis.text.x = element_text(angle = 90,size=7,hjust=1),plot.title = element_text(size = 13))+
+  scale_fill_manual(values=with(brads_col_2,setNames(Brad_colours,`New Inseck key name`)))+
+  ggtitle(paste('Relative abundance by boundary'))+ylab('Proportion')+xlab('Boundary type')+
+  labs(fill = "Insect  group")+
+  theme(
+    legend.text = element_text(size = 6), 
+    legend.title = element_text(size = 6),
+    legend.key.size = unit(1,"line"))  
+
+```
+
+## Just a base tests to show that there is significantly more counts by planting age
+
+Just mucking around trying to think of ways to highlight the great raw counts in old, 3 years etc
+
+```{r raw_counts, echo=T,warning = FALSE}
+#switching to raw counts
+data<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Copy of Pak choi pollinators raw visits Brad correctedupdatedEddy.xlsx',sheet='Pak choi raw visits')
+
+#filter out things that are 2018 in Boundary age column
+data<-data %>% filter(`Boundary age`!=2018)
+#two odd balls that are only boundary for this season
+data<-data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='one year old'))
+data<-data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='two year old'))
+
+brads_col_2<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Eddy Pie chart short.xlsx',sheet='Colours')
+#tidy up some names etc
+data$Boundary_descriptor<-gsub('one year old','One year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('two year old','Two year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('three year old','Three year old',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Bare_fence','On-farm bare fence',data$Boundary_descriptor) #was Bare fence
+data$Boundary_descriptor<-gsub('Control_farm','Off-farm bare fence',data$Boundary_descriptor) #was Control farm
+
+unique(data$Boundary_descriptor)
+colnames(data)
+
+#summarising counts to clean up dataset etc
+mydf<-data %>% select(-`Broad Insect category`,-Origin,-`Boundary age`,-`Sum of Insects/100 flowers`) 
+
+mydf<-mydf %>% mutate(unique_sample=paste(Boundary_descriptor,Farm_name,Season))
+
+counts<-mydf %>% ungroup() %>% select(unique_sample,`New Inseck key name`,`Sum of Insect_Count`)
+
+#transform wide
+counts_wide<-counts %>% pivot_wider(names_from=`New Inseck key name`,values_from = `Sum of Insect_Count`)
+counts_wide<-counts_wide %>% remove_rownames %>% column_to_rownames(var="unique_sample")
+
+#meta data
+meta_data<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Copy of Meta_data_pakchoiBH.xlsx',sheet='Meta_data_pakchoi')
+rownames(meta_data) <- meta_data$unique_sample
+meta_data<-meta_data %>% mutate(month_split=paste(Collection_month,Beg_Mid_end,sep='_'))
+meta_data<-meta_data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='One year old'))
+meta_data<-meta_data %>% filter(!(Season=='2023/24'& Boundary_descriptor=='Two year old'))
+#relevel
+meta_data<-meta_data %>%   mutate(Boundary_descriptor=fct_relevel(Boundary_descriptor,c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old')))
+
+#check meta and count data match
+setdiff(row.names(counts_wide),meta_data$unique_sample)
+#brad colour scheme (control to old):
+col_bound<-c('chocolate','#FDE725FF',"#5DC863FF","#21908CFF",'#3B528BFF',"#440154FF")
+#col_bound
+
+#ready to analyse!
+
+insect_counts<-rowSums(counts_wide)
+
+insect_counts_df<-data.frame(insect_counts)
+insect_counts_df <- rownames_to_column(insect_counts_df, var = "unique_sample")
+insect_counts_df<-left_join(insect_counts_df,meta_data)
+insect_counts_df$Boundary_descriptor <- factor(insect_counts_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+#split by season
+plot_sppr <- ggplot(insect_counts_df, aes(x = Boundary_descriptor, y = insect_counts, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+#  facet_wrap(~Season)+
+  theme_bw()+
+  scale_fill_manual(values=col_bound)+
+  labs(x = "Boundary type",
+       y = "Raw counts",
+       title = "Raw counts by boundary",
+       fill = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+
+#split by season
+plot_sppr <- ggplot(insect_counts_df, aes(x = Boundary_descriptor, y = insect_counts, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+  facet_wrap(~Season,scales="free")+
+  theme_bw()+
+  scale_fill_manual(values=col_bound)+
+  labs(x = "Boundary type",
+       y = "Raw counts",
+       title = "Raw counts by boundary",
+       fill = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+#issue with model convergence with some random effects so:
+m0<-lmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) , data = meta_data)
+m1<-lmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) +(1|Site), data = meta_data)
+m3<-lmer(insect_counts ~ Boundary_descriptor + `Flower count` +(1|Season) , data = meta_data)
+m4<-lmer(insect_counts ~ Boundary_descriptor + `Flower count` +(1|Season) +(1|Site), data = meta_data)
+
+#im getting a boundary (singular) fit warning with month_split so dropping for this
+
+AIC(m0,m1,m3,m4)
+anova(m0,m1,m3,m4)
+
+#m0<-lmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) +(1|Site), data = meta_data)
+m0<-lmer(insect_counts ~ Boundary_descriptor + `Flower count` +(1|Season) +(1|Site), data = meta_data)
+
+qqnorm(residuals(m0))
+qqline(residuals(m0))
+#probably better of in glmer (right hand skew)
+
+m0<-glmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) , data = meta_data, family = poisson)
+m1<-glmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) +(1|Site) , data = meta_data, family = poisson)
+m2<-glmer(insect_counts ~ Boundary_descriptor + log(`Flower count`) +(1|Season)  , data = meta_data, family = poisson)
+m3<-glmer(insect_counts ~ Boundary_descriptor + log(`Flower count`) +(1|Season) +(1|Site) , data = meta_data, family = poisson)
+m4<-glmer.nb(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) +(1|Site) , data = meta_data)
+m5<-glmer.nb(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) , data = meta_data)
+m6<-glmer.nb(insect_counts ~ Boundary_descriptor + log(`Flower count`) +(1|Season) , data = meta_data)
+m7<-glmer.nb(insect_counts ~ Boundary_descriptor + log(`Flower count`) +(1|Season) +(1|Site), data = meta_data)
+AIC(m0,m1,m2,m3,m4,m5,m6,m7)
+
+#actually over dispersed anyways so using nb
+m0<-glmer.nb(insect_counts ~ Boundary_descriptor + log(`Flower count`) +(1|Season) +(1|Site), data = meta_data)
+res<-simulateResiduals(m0)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+performance::check_overdispersion(m0)
+summary(m0)
+
+#kable(summary(m0), format="html")
+emm2 <- emmeans(m0, ~ Boundary_descriptor,type = "response" )
+
+pairs(emm2,  adjust = "tukey")
+
+#running each as I think all comparisons is a bit over the top and probably repeating things
+cld_rich <- multcomp::cld(emm2, Letters = letters, adjust = "tukey")
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = response)) +
+  theme_bw()+
+  geom_errorbar(aes(ymin = asymp.LCL, ymax =asymp.UCL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimated counts", x = "Boundary type", colour='Boundary type') +
+    geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+#final model but looking at impact with season
+m0<-glmer.nb(insect_counts ~ Boundary_descriptor+ Season  + log(`Flower count`) + (1|Site) , data = meta_data)
+summary(m0)
+res<-simulateResiduals(m0)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+performance::check_overdispersion(m0)
+#tbl_regression(m0) #still going to have to copy over so no point
+
+#kable(summary(m0), format="html")
+emm2 <- emmeans(m0, ~ Boundary_descriptor,type = "response", weights = "proportional")
+pairs(emm2, adjust = "tukey")
+
+cld_rich <- multcomp::cld(emm2, Letters = letters)
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = response)) +
+  theme_bw()+
+  geom_errorbar(aes(ymin = asymp.LCL, ymax =asymp.UCL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimated counts", x = "Boundary type", colour='Boundary type') +
+    geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+emm2 <- emmeans(m0, ~ Season,type = "response",  weights = "proportional")
+pairs(emm2, adjust = "tukey")
+#pairs(emm2,  adjust = "tukey")
+
+
+```
+
+## Alpha diversity
+
+Species count using species count 
+Im switching to raw counts here, one issue is that flower number varies so need to check the relationship between diversity and flower number
+
+```{r raw_alpha, echo=T}
+#Alpha diversity
+#one matrix of the counts
+#one metadata file
+
+#species accumulation curve
+speccurve<-specaccum(counts_wide,method='random',permutations=1000)
+plot(speccurve)
+
+#count species per property
+sppr <- specnumber(counts_wide)
+head(sppr)
+
+#can plot that out
+sppr_df <- sppr %>% 
+  enframe() %>% 
+  full_join(meta_data, by = c("name" = "unique_sample"))
+
+sppr_df$Boundary_descriptor <- factor(sppr_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+#just boundary
+plot_sppr <- ggplot(sppr_df, aes(x = Boundary_descriptor, y = value, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+  theme_bw()+
+  scale_fill_manual(values=col_bound)+
+  labs(x = "Boundary type",
+       y = "Number of species per site",
+       title = "Species richness: species count",
+       fill = "Boundary type")
+plot_sppr
+
+#other significant factor was season
+plot_sppr <- ggplot(sppr_df, aes(x = Boundary_descriptor, y = value, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+facet_wrap(~Season,scales="free")+
+    scale_fill_manual(values=col_bound)+
+  theme_bw()+
+  labs(x = "Boundary type",
+       y = "Number of species per site",
+       title = "Species richness: species count",
+       fill = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+#flower number:
+plot_sppr <- ggplot(sppr_df, aes(x = `Flower count`, y = value)) +
+  geom_point(aes(colour = Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Flower Number",
+       y = "Number of species per site",
+       title = "Species richness: species count", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+####season as a random effect
+#date split by month (early, mid, late) and farm name
+m0<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season), data = meta_data)
+m1<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Farm_name) , data = meta_data)
+m2<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Collection_month) + (1|Farm_name), data = meta_data)
+m3<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|month_split) + (1|Farm_name), data = meta_data)
+m4<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|month_split) + (1|Site), data = meta_data)
+m5<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Collection_month) + (1|Site), data = meta_data)
+m6<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data)
+
+AIC(m0,m1,m2,m3,m4,m5,m6)
+anova(m0,m1,m2,m3,m4,m5,m6)
+
+#this is all really marginal so be honest
+
+#I think for the paper site needs to go in as a random effect so I've settled on: 
+#month is marginal and difficult to work out the right cuts offs without ending up right down the bottom for our group size
+#month_split + farm name + season
+m3<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data)
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+#its right hand skewed so trying glmer
+m0<-lmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data)
+m1<-glmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data,family = poisson)
+m2<-glmer.nb(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data)
+AIC(m0,m1,m2)
+anova(m0,m1,m2)
+res<-simulateResiduals(m1)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+#final model
+m1<-glmer(sppr ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data,family = poisson)
+summary(m1)
+
+#back transform to species count
+emm1 <- emmeans(m1, ~ Boundary_descriptor, type = "response") 
+#pairwise test
+pairs(emm1,  adjust = "tukey")
+#pairs(emm1, by='Boundary_descriptor', adjust = "tukey")
+#running each as I think all comparisons is a bit over the top and probably repeating things
+cld_rich <- multcomp::cld(emm1, Letters = letters, adjust = "tukey")
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = rate)) +
+  theme_bw()+
+  geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimate species richness", x = "Boundary type", colour='Boundary type') +
+    geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+#final model but looking at impact with season
+m0<-glmer(sppr ~ Boundary_descriptor + Season + log(`Flower count`) + (1|Site), data = meta_data,family = poisson,control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=2e5)))
+res<-simulateResiduals(m0)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+summary(m0)
+#tbl_regression(m0) #still going to have to copy over so no point
+
+#kable(summary(m0), format="html")
+emm2 <- emmeans(m0, ~ Boundary_descriptor,type = "response",weights = "proportional")
+pairs(emm2,  adjust = "tukey")
+cld_rich <- multcomp::cld(emm2, Letters = letters)
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = rate)) +
+  theme_bw()+
+  geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimate species richness", x = "Boundary type", colour='Boundary type') +
+  geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+#pairs(emm2,  adjust = "tukey")
+emm2 <- emmeans(m0, ~ Season,type = "response", weights = "proportional")
+pairs(emm2,  adjust = "tukey")
+#the significant pairs of boundary types are exactly the same between the full model and the anova
+```
+
+## Alpha diversity shannon
+
+Alpha diversity using shannon
+
+```{r shannon_alpha, echo=T}
+shannondiv<-diversity(counts_wide)
+head(shannondiv)
+
+
+#can plot that out
+shannondiv_df <- shannondiv %>% 
+  enframe() %>% 
+  full_join(meta_data, by = c("name" = "unique_sample"))
+
+shannondiv_df$Boundary_descriptor <- factor(shannondiv_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+
+#just boundary
+plot_sppr <- ggplot(shannondiv_df, aes(x = Boundary_descriptor, y = value, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+  theme_bw()+
+  scale_fill_manual(values=col_bound)+
+  labs(x = "Boundary type",
+       y = "Number of species per site",
+       title = "Species richness: shannon",
+       fill = "Boundary type")
+plot_sppr
+
+#split by season
+plot_sppr <- ggplot(shannondiv_df, aes(x = Boundary_descriptor, y = value, fill = Boundary_descriptor)) +
+  geom_boxplot() +
+  facet_wrap(~Season,scales="free")+
+  theme_bw()+
+  scale_fill_manual(values=col_bound)+
+  labs(x = "Boundary type",
+       y = "Number of species per site",
+       title = "Species richness: shannon",
+       fill = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+####season as random effect
+m0<-lmer(shannondiv ~ Boundary_descriptor+ log(`Flower count`)+(1|Season), data = meta_data)
+m1<-lmer(shannondiv ~ Boundary_descriptor+ log(`Flower count`)+(1|Season) + (1|Farm_name) , data = meta_data)
+m2<-lmer(shannondiv ~ Boundary_descriptor+ log(`Flower count`)+(1|Season) + (1|month_split) , data = meta_data)
+m3<-lmer(shannondiv ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|month_split) + (1|Farm_name), data = meta_data)
+m4<-lmer(shannondiv ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|month_split) + (1|Site), data = meta_data)
+m5<-lmer(shannondiv ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Collection_month) + (1|Site), data = meta_data)
+m6<-lmer(shannondiv ~ Boundary_descriptor + log(`Flower count`)+(1|Season) + (1|Site), data = meta_data)
+
+AIC(m0,m1,m2,m3,m4,m5,m6) 
+anova(m0,m1,m2,m3,m4,m5,m6)
+# site grouping....
+#this feels right, there is little to no difference in outcome but site is better than farm and month is 
+
+m3<-lmer(shannondiv ~ Boundary_descriptor + log(`Flower count`)+(1|Season)  + (1|Site), data = meta_data)
+summary(m3)
+
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+#testZeroInflation(res) not relavent as boundary effects of shannon
+
+emm2 <- emmeans(m3, ~ Boundary_descriptor,type = "response")
+pairs(emm2,simple='each',  adjust = "tukey")
+
+#running each as I think all comparisons is a bit over the top and probably repeating things
+cld_rich <- multcomp::cld(emm2, Letters = letters, adjust = "tukey")
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
+#  facet_wrap(~Season)+
+  theme_bw()+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimated Shannon", x = "Boundary type", colour='Boundary type') +
+    geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+
+#final model but looking at impact with season
+m0<-lmer(shannondiv ~ Boundary_descriptor + Season + log(`Flower count`) + (1|Site), data = meta_data)
+summary(m0)
+
+qqnorm(residuals(m0))
+qqline(residuals(m0))
+plot(fitted(m0), residuals(m0))
+
+res<-simulateResiduals(m0)
+plot(res)
+testDispersion(res)
+#tbl_regression(m0) #still going to have to copy over so no point
+
+#kable(summary(m0), format="html")
+emm2 <- emmeans(m0, ~ Boundary_descriptor,type = "response", weights = "proportional")
+pairs(emm2,  adjust = "tukey")
+
+cld_rich <- multcomp::cld(emm2, Letters = letters)
+colnames(cld_rich)
+
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
+  theme_bw()+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  geom_point(size = 3,aes(colour=Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+# not sure if groupings will make sense with facet wrap
+#  geom_text(aes(label = .group, y = asymp.UCL + 0.2), vjust = 0, size = 5) +
+  labs(y = "Estimated Shannon", x = "Boundary type", colour='Boundary type') +
+    geom_text(aes(label = trimws(.group)),  hjust = -0.75) +
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+#pairs(emm2,  adjust = "tukey")
+emm2 <- emmeans(m0, ~ Season,type = "response", weights = "proportional")
+pairs(emm2,  adjust = "tukey")
+
+```
+
+
+
+## Using renyi profiles
+Tracking the difference between the two communities using a renyi profile method. We can use this split by season in the paper as that gets around the random effects of sites and season. 
+
+The Renyi diversity profile at scale 0 reflects species richness, at scale 1 the Shannon index, at scale 2 the Simpson index and at scale Inf the Berger-Parker index (the dominance of the most abundant species):
+
+If the profiles cross over then it may not be possible to compare diversity. I find this interesting as its the old samples that cross over. The 3 year olds don't. This follows the above shannon/simpson analysis that shows evenness is highest in the 3-year old samples. We cant actually include this in the final paper as its not taking into account flower number/farm/date sampled like the models above are. But I wanted to get your thoughts on it as I havent seen data like this. Though the fly one was similar when simpson was so high for apple as there was basically no diversity at apple so it was perfectly even. We should probably include the accumulation plot in the supplementary though (along with the innext plots).
+
+Im thinking that this suggests a lot more rare species are coming into the plantings compared to the bare fence. So the evenness becomes quite lower compared to the bare fence/control plantings. Which feeds into that science paper we discussed the other day about bee species rather than bee number being important. 
+
+```{r renyi_q1,echo=T}
+meta_data$Boundary_descriptorf<-factor(meta_data$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
+meta_data_bior<-as.data.frame(meta_data)
+Renyi.1<-renyicomp(counts_wide,y=meta_data_bior,factor='Boundary_descriptorf', 
+  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
+
+pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+    scale_x_discrete() +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(data=renyi.long1_dataframe, 
+              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+              linewidth=2) +
+    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+        size=5) +
+    geom_ribbon(data=renyi.long1_dataframe, 
+                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+                show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound)+
+    theme_bw() +
+    #scale_colour_npg() +
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type")
+pl_renyi_across
+
+#not great but that is conflated with the effect of season so break it up by season:
+#meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24')
+#meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+
+#counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+#counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+#Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
+#  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+#renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+#renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+#renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Control farm','Bare fence',"One year old","Two year old","Three year old","Old"))
+
+#pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+#    scale_x_discrete() +
+#    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+#    geom_line(data=renyi.long1_dataframe, 
+#              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+#              linewidth=2) +
+#    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+#        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+#        size=5) +
+#    geom_ribbon(data=renyi.long1_dataframe, 
+#                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+#                show.legend=FALSE) + 
+#     scale_colour_manual(values=col_bound)+
+#    theme_bw() +
+#    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2023/24')
+#pl_renyi_across
+
+
+#2023/24 but also dropping the one year old and two year old that only have one replicate
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24') #%>% filter(Boundary_descriptor!='One year old')%>% filter(Boundary_descriptor!='Two year old')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels =c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
+  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+
+col_bound_cut<-c('chocolate','#FDE725FF','#3B528BFF',"#440154FF")
+
+
+pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+    scale_x_discrete() +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(data=renyi.long1_dataframe, 
+              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+              linewidth=2) +
+    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+        size=5) +
+    geom_ribbon(data=renyi.long1_dataframe, 
+                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+                show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound_cut)+
+    theme_bw() +
+    #scale_colour_npg() +
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2023/24')
+pl_renyi_across
+
+  
+#2022/23
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
+  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+col_bound_cut<-c('chocolate','#FDE725FF',"#21908CFF","#440154FF")
+pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+    scale_x_discrete() +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(data=renyi.long1_dataframe, 
+              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+              linewidth=2) +
+    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+        size=5) +
+    geom_ribbon(data=renyi.long1_dataframe, 
+                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+                show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound_cut)+
+    theme_bw() +
+    #scale_colour_npg() +
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2022/23')
+pl_renyi_across
+
+
+#2021/22
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
+  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
+col_bound_cut<-c('chocolate','#FDE725FF',"#5DC863FF","#440154FF")
+
+pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+    scale_x_discrete() +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(data=renyi.long1_dataframe, 
+              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+              linewidth=2) +
+    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+        size=5) +
+    geom_ribbon(data=renyi.long1_dataframe, 
+                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+                show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound_cut)+
+    theme_bw() +
+    #scale_colour_npg() +
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2021/22')
+pl_renyi_across
+
+#hmmm pattern holds across seasons, I thought maybe that it would be one season throwing everyone out
+
+#just having a look at the accum results:
+Accum.1 <- accumcomp(counts_wide,y=meta_data_bior,factor='Boundary_descriptorf', 
+    method='exact', conditioned=FALSE, plotit=FALSE)
+accum.long1 <- accumcomp.long(Accum.1, ci=NA, label.freq=5)
+accum.long1_dataframe<-data.frame(accum.long1$Grouping,accum.long1$Obs,accum.long1$Sites,accum.long1$Richness,accum.long1$LWR,accum.long1$UPR,accum.long1$labelit)
+accum.long1_dataframe$Boundary_descriptor<-factor(accum.long1_dataframe$accum.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
+
+
+plotgg1 <- ggplot(data=accum.long1_dataframe, aes(x = accum.long1.Sites, y = accum.long1.Richness, ymax = accum.long1.UPR, ymin = accum.long1.LWR)) + 
+    scale_x_continuous(expand=c(0, 1), sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(aes(colour=Boundary_descriptor), linewidth=2) +
+    geom_point(data=subset(accum.long1_dataframe, accum.long1.labelit==TRUE), 
+               aes(colour=Boundary_descriptor, shape=Boundary_descriptor), size=5) +
+    geom_ribbon(aes(colour=Boundary_descriptor), alpha=0.2, show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound)+
+    theme_bw() +
+    labs(x = "Sites", y = "Species", colour = "Boundary type", shape = "Boundary type")
+plotgg1
+#
+
+```
+
+## Understanding how alpha diversity and seed set compare
+
+Using Heathers sheet that she created of average seed set at each site. File: 'pc_seed_data_summarised_cleaned.csv' for average seed set. 
+
+```{r alpha_seedset, echo=T}
+seedset<-read.csv('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/pc_seed_data_summarised_cleaned.csv')
+colnames(seedset)
+#tidy up some names etc so I can merge across
+#unique(seedset$Native_new_age)
+seedset$Native_new_age<-gsub('One-year old native','One year old',seedset$Native_new_age)
+seedset$Native_new_age<-gsub('Two-year old native','Two year old',seedset$Native_new_age)
+seedset$Native_new_age<-gsub('Three-year old native','Three year old',seedset$Native_new_age)
+seedset$Native_new_age<-gsub('Old native','Old',seedset$Native_new_age)
+#unique(seedset$Year)
+#unique(meta_data$Season)
+seedset$Year<-gsub('2021-2022','2021/22',seedset$Year)
+seedset$Year<-gsub('2022-2023','2022/23',seedset$Year)
+seedset$Year<-gsub('2023-2024','2023/24',seedset$Year)
+#colnames(meta_data)
+#colnames(seedset)
+seedset$Farm<-gsub('Ashford 1','Ashford_1',seedset$Farm)
+seedset$Farm<-gsub('Lochan Mor','Lochan_Mor',seedset$Farm)
+seedset$Farm<-gsub('Te Maania','Te_maania',seedset$Farm)
+seedset$Farm<-gsub('Terrace View','Terrace_view',seedset$Farm)
+seedset$Farm<-gsub('Nutpoint','Nut_Point',seedset$Farm)
+seedset_meta<-left_join(seedset,meta_data,by=c('Native_new_age'='Boundary_descriptor','Farm'='Farm_name','Year'='Season'))
+
+#drop limberick 1year old 2023/24 and garrickfeild 2year old 2023/24
+seedset_meta<-seedset_meta %>% filter(!(Farm=='Limbrick' & Native_new_age=='One year old'))%>% filter(!(Farm=='Garrickfield' & Native_new_age=='Two year old'))
+
+#now do comparison of species richness vs seedset
+seedset_meta_clean<-seedset_meta %>% select(unique_sample,Treatment,Mean_seeds_viable)
+#colnames(seedset_meta_clean)
+#spread wide
+seedset_meta_clean<-spread(seedset_meta_clean, key = Treatment, value = Mean_seeds_viable)
+
+##########################
+#seed set vs richness raw#
+##########################
+
+#generate species counts
+#count species per property
+sppr <- specnumber(counts_wide)
+#head(sppr)
+
+#data frame
+sppr_df <- sppr %>% 
+  enframe() %>% 
+  full_join(meta_data, by = c("name" = "unique_sample"))
+
+#join to seedset counts
+sppr_df_ss<-sppr_df %>%  full_join(seedset_meta_clean, by = c("name" = "unique_sample"))
+
+sppr_df_ss$Boundary_descriptor <- factor(sppr_df_ss$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+colnames(sppr_df_ss)
+
+#there is 6 samples that I have species counts for but do not have seed set yeilds for, I have asked brad to clarify what is happening there
+#just filtering out here so that there is no errors
+sppr_df_ss <-sppr_df_ss  %>%
+  drop_na(Open)
+
+#open pollination being insect pollination:
+plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
+  geom_point(aes(colour = Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Species richness (count)",
+       y = "Seed set",
+       title = "Seed set vs species richness", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+#model it properly with everything in like it should be:
+#seedset is fairly normal
+#but note that it is the average not the raw counts (hence lmer)
+hist(sppr_df_ss$Open)
+
+#model with flower count season and site (last two random effects)
+names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
+
+m3<-lmer(Open ~ value + log(Flower_count)+(1|Season) + (1|Site) ,data=sppr_df_ss)
+summary(m3)
+
+m3<-lmer(Open ~ value  +log(Flower_count)+(1|Season) +(1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
+summary(m3)
+
+m3<-lmer(Open ~ value + Boundary_descriptor +log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+summary(m3)
+
+m3<-lmer(Open ~ value + Boundary_descriptor +log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
+summary(m3)
+
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+#bl_regression(m0)
+
+p <- ggpredict(m3,terms = "value")
+
+ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
+  geom_line(size = 1.1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2) +
+  labs(
+    x = "Species richness",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs species richness") +
+  theme_bw()
+
+#by season
+m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
+summary(m3)
+m3<-lmer(Open ~ value + log(Flower_count)+Season + Boundary_descriptor+ (1|Site),data=sppr_df_ss)
+summary(m3)
+m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+summary(m3)
+
+
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+p <- ggpredict(m3,terms = c("value","Season"))
+plot(p)
+ggplot(p, aes(x = x, y = predicted,colour = group, fill = group)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high),alpha = 0.25, colour = NA) +
+ labs(
+    x = "Species richness",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs species richness",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 11)
+  )
+
+ggplot() +
+  geom_point(data = sppr_df_ss,aes(x = value, y = Open),alpha = 0.4, size = 2) +
+  geom_line(data = p,aes(x = x, y = predicted, colour = group),size = 1.2) +
+  geom_ribbon(data = p,aes(x = x, ymin = conf.low, ymax = conf.high,fill = group),alpha = 0.25, colour = NA) +
+  labs(x = "Species richness",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs species richness",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw()
+
+
+#what about just those that are measured across all seasons so only compare old and bare fences
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Off-farm bare fence'|Boundary_descriptor=='On-farm bare fence'|Boundary_descriptor=='Old')
+m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss_cut)
+summary(m3)
+
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Old')
+m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
+summary(m3)
+
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Off-farm bare fence')
+m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
+summary(m3)
+
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='On-farm bare fence')
+m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
+summary(m3)
+
+
+#or only within a season
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2021/22')
+#by season
+m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
+summary(m3)
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2022/23')
+#by season
+m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
+summary(m3)
+sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2023/24')
+#by season
+m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
+summary(m3)
+
+#####################
+#seed set vs shannon#
+#####################
+
+shannondiv<-diversity(counts_wide)
+head(shannondiv)
+
+
+#can plot that out
+shannondiv_df <- shannondiv %>% 
+  enframe() %>% 
+  full_join(meta_data, by = c("name" = "unique_sample"))
+
+#join to seedset counts
+sppr_df_ss<-shannondiv_df %>%  full_join(seedset_meta_clean, by = c("name" = "unique_sample"))
+
+sppr_df_ss$Boundary_descriptor <- factor(sppr_df_ss$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+colnames(sppr_df_ss)
+
+#there is 6 samples that I have species counts for but do not have seed set yeilds for, I have asked brad to clarify what is happening there
+#just filtering out here so that there is no errors
+sppr_df_ss <-sppr_df_ss  %>%
+  drop_na(Open)
+
+#open pollination being insect pollination:
+plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
+  geom_point(aes(colour = Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Shannon",
+       y = "Seed set",
+       title = "Seed set vs shannon", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+#model it properly with everything in like it should be:
+
+#flower count goes in a offset in earlier models but here richness is response so its going in as a variable
+#model with flower count season and site (last two random effects)
+names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
+m3<-lmer(Open ~ value + log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
+
+summary(m3)
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+p <- ggpredict(m3,terms = "value")
+
+ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
+  geom_line(size = 1.1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2) +
+  labs(
+    x = "Shannon",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs shannon") +
+  theme_bw()
+
+#by season
+m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+summary(m3)
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+p <- ggpredict(m3,terms = c("value","Season"))
+plot(p)
+ggplot(p, aes(x = x, y = predicted,colour = group, fill = group)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high),alpha = 0.25, colour = NA) +
+  labs(x = "Shannon",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs shannon",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 11)
+  )
+
+ggplot() +
+  geom_point(data = sppr_df_ss,aes(x = value, y = Open),alpha = 0.4, size = 2) +
+  geom_line(data = p,aes(x = x, y = predicted, colour = group),size = 1.2) +
+  geom_ribbon(data = p,aes(x = x, ymin = conf.low, ymax = conf.high,fill = group),alpha = 0.25, colour = NA) +
+  labs(x = "Shannon",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs shannon",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw()
+
+#############################
+#seed set vs total abundance#
+#############################
+
+insect_counts<-rowSums(counts_wide)
+
+insect_counts_df<-data.frame(insect_counts)
+insect_counts_df <- rownames_to_column(insect_counts_df, var = "unique_sample")
+insect_counts_df<-left_join(insect_counts_df,meta_data)
+
+#join to seedset counts
+sppr_df_ss<-insect_counts_df %>%  full_join(seedset_meta_clean, by = c("unique_sample" = "unique_sample"))
+
+sppr_df_ss$Boundary_descriptor <- factor(sppr_df_ss$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+colnames(sppr_df_ss)
+
+#there is 6 samples that I have species counts for but do not have seed set yeilds for, I have asked brad to clarify what is happening there
+#just filtering out here so that there is no errors
+sppr_df_ss <-sppr_df_ss  %>%
+  drop_na(Open)
+
+#open pollination being insect pollination:
+plot_sppr <- ggplot(sppr_df_ss, aes(x = insect_counts, y = Open)) +
+  geom_point(aes(colour = Boundary_descriptor)) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Raw counts",
+       y = "Seed set",
+       title = "Seed set vs raw counts", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+
+plot_sppr
+
+#model it properly with everything in like it should be:
+
+#flower count goes in a offset in earlier models but here richness is response so its going in as a variable
+#model with flower count season and site (last two random effects)
+names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
+
+m3<-lmer(Open ~ insect_counts + log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
+summary(m3)
+
+plot(m3)
+qqnorm(resid(m3));qqline(resid(m3))
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+p <- ggpredict(m3,terms = "insect_counts")
+
+ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
+  geom_line(size = 1.1) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2) +
+  labs(
+    x = "Raw counts",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs raw counts") +
+  theme_bw()
+
+#by season
+m3<-lmer(Open ~ insect_counts + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+summary(m3)
+qqnorm(residuals(m3))
+qqline(residuals(m3))
+plot(fitted(m3), residuals(m3))
+
+res<-simulateResiduals(m3)
+plot(res)
+testDispersion(res)
+testZeroInflation(res)
+
+p <- ggpredict(m3,terms = c("insect_counts","Season"))
+plot(p)
+ggplot(p, aes(x = x, y = predicted,colour = group, fill = group)) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high),alpha = 0.25, colour = NA) +
+  labs(x = "Raw counts",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs raw counts",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 11)
+  )
+
+ggplot() +
+  geom_point(data = sppr_df_ss,aes(x = insect_counts, y = Open),alpha = 0.4, size = 2) +
+  geom_line(data = p,aes(x = x, y = predicted, colour = group),size = 1.2) +
+  geom_ribbon(data = p,aes(x = x, ymin = conf.low, ymax = conf.high,fill = group),alpha = 0.25, colour = NA) +
+  labs(x = "Raw counts",
+    y = "Mean seed set per site",
+    title = "Marginal prediction: seed set vs raw counts",
+    colour = "Season",
+    fill = "Season"
+  ) +
+  theme_bw()
+
+
+```
+
+
+
+## Beta Diversity
+Beta diversity analysis
+Adonis2 works with nesting via a strata factor that blocks permutations to within groups however if you add both site and season you run out of permutations. instead im running this within a season to get around the random effects of season and sites
+
+
+```{r beta_alpha, echo=T}
+#beta diversity
+
+###############################
+#redoing this within a season:#
+###############################
+#impact of season overall with interaction of season and boundary
+perm<-adonis2(counts_wide ~ Boundary_descriptor *Season+`Flower count`, data = meta_data_bior,strata=meta_data_bior$Site,by='terms')
+perm
+#impact of season overall without interaction of season and boundary
+perm<-adonis2(counts_wide ~ Boundary_descriptor +Season+`Flower count`, data = meta_data_bior,strata=meta_data_bior$Site,by='terms')
+perm
+
+#season and flower count are significant predictors of species composition
+
+#this for the paper 
+#dont include a strata as within a season each site is only measured once and between season issue is dealt with by doing one season at a time
+#2021/22
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season,by='terms')
+perm
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+perm
+pairwise_adonis<-pairwise.adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+pairwise_adonis
+
+#2022/23
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season,by='terms')
+perm
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+perm
+pairwise_adonis<-pairwise.adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+pairwise_adonis
+
+#2023/24
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season,by='terms')
+perm
+perm<-adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+perm
+pairwise_adonis<-pairwise.adonis2(counts_wide_filt ~ Boundary_descriptor +`Flower count`, data = meta_data_bior_season)
+pairwise_adonis
+```
+
+## NMDS
+NMDS plot
+
+```{r nmds_alpha, echo=T}
+#NMDS is struggling to find a repeated solution. I think this is due to the rare species
+#https://stats.stackexchange.com/questions/649643/best-solution-was-not-repeated-no-reliable-result-for-metamds
+
+pk_NMDS <- metaMDS(counts_wide,trymax=200,distance='bray')
+
+pk_NMDS
+#stress is a little high (ideally <0.2)
+
+stressplot(pk_NMDS)
+
+plot(pk_NMDS)
+
+plot_df <- scores(pk_NMDS, display = "sites") %>% 
+  as.data.frame() %>% 
+  rownames_to_column("site") %>% 
+  full_join(meta_data, by = c("site" = "unique_sample"))
+
+plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+
+plot_nmds <- ggplot(plot_df, aes(x = NMDS1, y = NMDS2, color = Boundary_descriptor)) +
+  geom_point(size = 2, alpha = 0.8) +
+  stat_ellipse(linetype = 2, linewidth = 0.5) +
+  theme_bw()+
+    scale_colour_manual(values=col_bound)+
+  labs(title = "NMDS",
+       colour = "Boundary type")
+plot_nmds
+
+#split by season
+#2021/22
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+pk_NMDS <- metaMDS(counts_wide_filt,trymax=200,distance='bray')
+
+pk_NMDS
+#stress is a little high (ideally <0.2)
+
+stressplot(pk_NMDS)
+
+plot_df <- scores(pk_NMDS, display = "sites") %>% 
+  as.data.frame() %>% 
+  rownames_to_column("site") %>% 
+  full_join(meta_data_bior_season, by = c("site" = "unique_sample"))
+
+plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"),ordered = T)
+
+col_bound_cut<-c('chocolate','#FDE725FF',"#5DC863FF","#440154FF")
+
+plot_nmds <- ggplot(plot_df, aes(x = NMDS1, y = NMDS2, color = Boundary_descriptor)) +
+  geom_point(size = 2, alpha = 0.8) +
+  stat_ellipse(linetype = 2, linewidth = 0.5) +
+  theme_bw()+
+    scale_colour_manual(values=col_bound_cut)+
+  labs(title = "NMDS: 2021/22",
+       colour = "Boundary type")
+plot_nmds
+
+#split by season
+#2022/23
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+pk_NMDS <- metaMDS(counts_wide_filt,trymax=200,distance='bray')
+
+pk_NMDS
+#stress is a little high (ideally <0.2)
+
+stressplot(pk_NMDS)
+
+plot_df <- scores(pk_NMDS, display = "sites") %>% 
+  as.data.frame() %>% 
+  rownames_to_column("site") %>% 
+  full_join(meta_data_bior_season, by = c("site" = "unique_sample"))
+
+plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"),ordered = T)
+
+col_bound_cut<-c('chocolate','#FDE725FF',"#21908CFF","#440154FF")
+
+plot_nmds <- ggplot(plot_df, aes(x = NMDS1, y = NMDS2, color = Boundary_descriptor)) +
+  geom_point(size = 2, alpha = 0.8) +
+  stat_ellipse(linetype = 2, linewidth = 0.5) +
+  theme_bw()+
+    scale_colour_manual(values=col_bound_cut)+
+  labs(title = "NMDS: 2022/23",
+       colour = "Boundary type")
+plot_nmds
+
+#split by season
+#2023/24
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+pk_NMDS <- metaMDS(counts_wide_filt,trymax=200,distance='bray')
+
+pk_NMDS
+#stress is a little high (ideally <0.2)
+
+stressplot(pk_NMDS)
+
+plot_df <- scores(pk_NMDS, display = "sites") %>% 
+  as.data.frame() %>% 
+  rownames_to_column("site") %>% 
+  full_join(meta_data_bior_season, by = c("site" = "unique_sample"))
+
+plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"),ordered = T)
+
+col_bound_cut<-c('chocolate','#FDE725FF',"#3B528BFF","#440154FF")
+
+plot_nmds <- ggplot(plot_df, aes(x = NMDS1, y = NMDS2, color = Boundary_descriptor)) +
+  geom_point(size = 2, alpha = 0.8) +
+  stat_ellipse(linetype = 2, linewidth = 0.5) +
+  theme_bw()+
+    scale_colour_manual(values=col_bound_cut)+
+  labs(title = "NMDS: 2023/24",
+       colour = "Boundary type")
+plot_nmds
+
+```
+
+
+## RDA
+An alternative to the MDS that would align well with the adonis2 beta diversity analysis would be a rda (constrained PCA - PCA on predicted variables) and using the model. 
+For the species lines note that I double the length here for plotting
+
+
+```{r rda_mds, echo=T,warning = FALSE}
+counts_wide.Hellinger <- disttransform(counts_wide, method='hellinger')
+#add conditions here for random effects:
+#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data=meta_data_bior, scaling="species")
+meta_data_bior$log_flower <- scale(log1p(meta_data_bior$`Flower count`))
+#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  log_flower + Condition(Season), data=meta_data_bior, scaling="species")
+
+Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf + `Flower count` + Season, data=meta_data_bior, scaling="species")
+#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf + `Flower count` + Condition(Season), data=meta_data_bior, scaling="species")
+
+#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data=meta_data_bior, scaling="species")
+
+plot2 <- ordiplot(Ordination.model2, choices=c(1,2))
+sites.long2 <- sites.long(plot2, env.data=meta_data_bior)
+species.long2 <- species.long(plot2)
+axis.long2 <- axis.long(Ordination.model2, choices=c(1, 2))
+sites.long2$Boundary_descriptor <- factor(sites.long2$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+#just dots
+plotgg2 <- ggplot() + 
+    geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+    geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+    xlab(axis.long2[1, "label"]) +
+    ylab(axis.long2[2, "label"]) +  
+    scale_x_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +    
+    geom_point(data=sites.long2, 
+               aes(x=axis1, y=axis2, colour=Boundary_descriptor), 
+               size=3) +
+   scale_colour_manual(values=col_bound)+
+    theme_bw()
+
+plotgg2
+
+#95% circles
+plotgg2 <- ggplot() + 
+    geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+    geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+    xlab(axis.long2[1, "label"]) +
+    ylab(axis.long2[2, "label"]) +  
+    scale_x_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +    
+    geom_point(data=sites.long2, 
+               aes(x=axis1, y=axis2, colour=Boundary_descriptor), 
+               size=3) +
+  stat_ellipse(data=sites.long2, 
+                      aes(x=axis1, y=axis2, colour=Boundary_descriptor, fill=Boundary_descriptor),
+type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F) +
+    scale_colour_manual(values=col_bound)+
+     scale_fill_manual(values=col_bound)+
+   theme_bw()
+
+plotgg2
+
+#add in species arrows
+spec.envfit <- envfit(plot2, env=counts_wide.Hellinger)
+spec.data.envfit <- data.frame(r=spec.envfit$vectors$r, p=spec.envfit$vectors$pvals)
+species.long2 <- species.long(plot2, spec.data=spec.data.envfit)
+#species that explain 10% of variation
+species.long3 <- species.long2[species.long2$r >= 0.1, ]
+#species.long3
+ordiArrowMul(spec.envfit) #close to 2
+
+plotgg2 <- ggplot() + 
+    geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+    geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+    xlab(axis.long2[1, "label"]) +
+    ylab(axis.long2[2, "label"]) +  
+    scale_x_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +    
+    geom_point(data=sites.long2, 
+               aes(x=axis1, y=axis2, colour=Boundary_descriptor), 
+               size=3) +
+   scale_colour_manual(values=col_bound)+
+    geom_segment(data=species.long3, 
+                 aes(x=0, y=0, xend=axis1*2, yend=axis2*4), 
+                 colour="black", size=0.7, arrow=arrow()) +
+    geom_text_repel(data=species.long3, 
+                    aes(x=axis1*2, y=axis2*2, label=labels),
+                    colour="black") +
+    theme_bw()
+
+plotgg2
+
+#species and circles
+plotgg2 <- ggplot() + 
+    geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+    geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+    xlab(axis.long2[1, "label"]) +
+    ylab(axis.long2[2, "label"]) +  
+    scale_x_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +    
+    geom_point(data=sites.long2, 
+               aes(x=axis1, y=axis2, colour=Boundary_descriptor), 
+               size=3) +
+  stat_ellipse(data=sites.long2, 
+                      aes(x=axis1, y=axis2, colour=Boundary_descriptor, fill=Boundary_descriptor),
+type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F) +
+    scale_colour_manual(values=col_bound)+
+     scale_fill_manual(values=col_bound)+
+    geom_segment(data=species.long3, 
+                 aes(x=0, y=0, xend=axis1*2, yend=axis2*2), 
+                 colour="black", size=0.7, arrow=arrow()) +
+    geom_text_repel(data=species.long3, 
+                    aes(x=axis1*2, y=axis2*2, label=labels),
+                    colour="black") +
+    theme_bw()
+
+plotgg2
+
+#alternative would be ddRDA or capscale on bray distance (PCoA) which might be better for us for differences between communities
+#cap <- capscale(counts_wide ~ Boundary_descriptorf + `Flower count` + Condition(Season), data = meta_data_bior, distance = "bray")
+cap <- capscale(counts_wide ~ Boundary_descriptorf + `Flower count` + Season, data = meta_data_bior, distance = "bray")
+
+#I cant get sites in as a condition it bounds it up too much but this issue isnt really a problem for within a season 
+#cap <- capscale(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data = meta_data_bior, distance = "bray")
+#cap <- capscale(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+#cap <- capscale(counts_wide.Hellinger ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+
+anova(cap, by = "terms")
+plot(cap)
+site_scores <- scores(cap, display = "sites")
+species_scores <- scores(cap, display = "species")
+centroids <- scores(cap, display = "cn")
+
+
+df_sites <- as.data.frame(site_scores)
+df_sites$unique_sample <- rownames(df_sites)
+capscale_df <- left_join(df_sites,meta_data)
+
+capscale_df$Boundary_descriptor <- factor(capscale_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+eig_vals <- cap$CCA$eig
+prop_var <- eig_vals / sum(eig_vals)
+
+xlab <- paste0("CAP1 (", round(prop_var[1] * 100, 1), "%)")
+ylab <- paste0("CAP2 (", round(prop_var[2] * 100, 1), "%)")
+
+#base plot
+ggplot(capscale_df, aes(x = CAP1, y = CAP2, color = Boundary_descriptor)) +
+  geom_point(size = 3) +
+ scale_colour_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  theme_bw()
+
+#95% circles  
+ggplot() +
+  geom_point(data=capscale_df, aes(x = CAP1, y = CAP2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  scale_fill_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  stat_ellipse(data=capscale_df, 
+  aes(x = CAP1, y = CAP2, color = Boundary_descriptor,fill = Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+
+#note species scores are calculated using euclidean distance in capscale which we assume correlates to brays
+#so probably dump the species on in supplementary and say combined with standard RDA shows driven by lassio
+# Calculate arrow length (distance from origin) to equate to species explaining most variation
+#top species
+sp_len <- sqrt(rowSums(species_scores^2))
+
+# Rank species by length
+head(sort(sp_len, decreasing = TRUE), 10)   # top 10 species for plot
+keep <- names(sp_len[sp_len > quantile(sp_len, 0.9)])  # top 10% longest arrows
+sp_filt <- species_scores[keep, ]
+
+#species in plot      
+ggplot() +
+  geom_point(data=capscale_df, aes(x = CAP1, y = CAP2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=CAP1*2, yend=CAP2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=CAP1*2, y=CAP2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+      
+#circles      
+ggplot() +
+  geom_point(data=capscale_df, aes(x = CAP1, y = CAP2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  scale_fill_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=CAP1*2, yend=CAP2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=CAP1*2, y=CAP2*2, label=rownames(sp_filt)),
+    colour="black") +
+  stat_ellipse(data=capscale_df, 
+  aes(x = CAP1, y = CAP2, color = Boundary_descriptor,fill = Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+
+#I think ddRDA is probably slightly better than capscale from what I've read but they do a similar thing 
+
+#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` + Condition(Season), data = meta_data_bior, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` +Season + Condition(Site), data = meta_data_bior, distance = "bray")
+bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` +Season , data = meta_data_bior, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data = meta_data_bior, distance = "bray")
+
+#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide.Hellinger ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+
+bound_dbrda_summary<-summary(bound_dbrda)
+plot(bound_dbrda)
+anova(bound_dbrda, by = "terms")
+
+site_scores <- scores(bound_dbrda, display = "sites")
+centroids <- scores(bound_dbrda, display = "cn")
+
+
+df_sites <- as.data.frame(site_scores)
+df_sites$unique_sample <- rownames(df_sites)
+bound_dbrda_df <- left_join(df_sites,meta_data)
+
+bound_dbrda_df$Boundary_descriptor <- factor(bound_dbrda_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+
+eig_vals <- bound_dbrda$CCA$eig
+prop_var <- eig_vals / sum(eig_vals)
+
+xlab <- paste0("dbRDA1 (", round(prop_var[1] * 100, 1), "%)")
+ylab <- paste0("dbRDA2 (", round(prop_var[2] * 100, 1), "%)")
+
+ggplot(bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor)) +
+  geom_point(size = 3) +
+ scale_colour_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  theme_bw()
+
+#with circles
+#95% circles  
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  scale_fill_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+
+#add in species arrows
+#rdRDA doesnt add species scores in automatically (due to them being calculated from the eucludian distance)
+#using hellinger transformed here
+sppscores(bound_dbrda)<-counts_wide.Hellinger
+
+# Calculate arrow length (distance from origin) to equate to species explaining most variation
+#top species
+species_scores <- scores(bound_dbrda, display = "species")
+
+sp_len <- sqrt(rowSums(species_scores^2))
+
+# Rank species by length
+head(sort(sp_len, decreasing = TRUE), 10)   # top 10 species for plot
+keep <- names(sp_len[sp_len > quantile(sp_len, 0.9)])  # top 10% longest arrows
+sp_filt <- species_scores[keep, ]
+
+#species in plot      
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+#add in species arrows & eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound)+
+  scale_fill_manual(values=col_bound)+
+  labs(x = xlab, y = ylab, color='Boundary type') +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+
+#lets have a look within a season:
+#2021/22
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf +`Flower count` , data = meta_data_bior_season, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(month_split), data = meta_data_bior_season, distance = "bray")
+
+
+
+bound_dbrda_summary<-summary(bound_dbrda)
+site_scores <- scores(bound_dbrda, display = "sites")
+centroids <- scores(bound_dbrda, display = "cn")
+
+
+df_sites <- as.data.frame(site_scores)
+df_sites$unique_sample <- rownames(df_sites)
+bound_dbrda_df <- left_join(df_sites,meta_data)
+bound_dbrda_df$Boundary_descriptor
+bound_dbrda_df$Boundary_descriptor <- factor(bound_dbrda_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence',"One year old","Old"),ordered = T)
+col_bound_cut<-c('chocolate','#FDE725FF',"#5DC863FF","#440154FF")
+
+eig_vals <- bound_dbrda$CCA$eig
+prop_var <- eig_vals / sum(eig_vals)
+
+xlab <- paste0("dbRDA1 (", round(prop_var[1] * 100, 1), "%)")
+ylab <- paste0("dbRDA2 (", round(prop_var[2] * 100, 1), "%)")
+
+#add in species arrows
+#rdRDA doesnt add species scores in automatically (due to them being calculated from the eucludian distance)
+#using hellinger transformed here
+counts_wide.Hellinger_filt <- disttransform(counts_wide_filt, method='hellinger')
+
+sppscores(bound_dbrda)<-counts_wide.Hellinger_filt
+
+# Calculate arrow length (distance from origin) to equate to species explaining most variation
+#top species
+species_scores <- scores(bound_dbrda, display = "species")
+
+sp_len <- sqrt(rowSums(species_scores^2))
+
+# Rank species by length
+head(sort(sp_len, decreasing = TRUE), 10)   # top 10 species for plot
+keep <- names(sp_len[sp_len > quantile(sp_len, 0.9)])  # top 10% longest arrows
+sp_filt <- species_scores[keep, ]
+
+#eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2021/22") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+
+#species in plot      
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2021/22") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+
+#add in species arrows & eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2021/22") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+#lets have a look within a season:
+#2022/23
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf + `Flower count` , data = meta_data_bior_season, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(month_split), data = meta_data_bior_season, distance = "bray")
+
+
+
+bound_dbrda_summary<-summary(bound_dbrda)
+site_scores <- scores(bound_dbrda, display = "sites")
+centroids <- scores(bound_dbrda, display = "cn")
+
+
+df_sites <- as.data.frame(site_scores)
+df_sites$unique_sample <- rownames(df_sites)
+bound_dbrda_df <- left_join(df_sites,meta_data)
+bound_dbrda_df$Boundary_descriptor
+bound_dbrda_df$Boundary_descriptor <- factor(bound_dbrda_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"),ordered = T)
+col_bound_cut<-c('chocolate','#FDE725FF',"#21908CFF","#440154FF")
+
+eig_vals <- bound_dbrda$CCA$eig
+prop_var <- eig_vals / sum(eig_vals)
+
+xlab <- paste0("dbRDA1 (", round(prop_var[1] * 100, 1), "%)")
+ylab <- paste0("dbRDA2 (", round(prop_var[2] * 100, 1), "%)")
+
+#add in species arrows
+#rdRDA doesnt add species scores in automatically (due to them being calculated from the eucludian distance)
+#using hellinger transformed here
+counts_wide.Hellinger_filt <- disttransform(counts_wide_filt, method='hellinger')
+
+sppscores(bound_dbrda)<-counts_wide.Hellinger_filt
+
+# Calculate arrow length (distance from origin) to equate to species explaining most variation
+#top species
+species_scores <- scores(bound_dbrda, display = "species")
+
+sp_len <- sqrt(rowSums(species_scores^2))
+
+# Rank species by length
+head(sort(sp_len, decreasing = TRUE), 10)   # top 10 species for plot
+keep <- names(sp_len[sp_len > quantile(sp_len, 0.9)])  # top 10% longest arrows
+sp_filt <- species_scores[keep, ]
+
+#eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2022/23") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+#species in plot      
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2022/23") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+
+#add in species arrows & eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2022/23") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+#lets have a look within a season:
+#2023/24
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf +`Flower count` , data = meta_data_bior_season, distance = "bray")
+#bound_dbrda <- dbrda(counts_wide_filt ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(month_split), data = meta_data_bior_season, distance = "bray")
+
+bound_dbrda_summary<-summary(bound_dbrda)
+site_scores <- scores(bound_dbrda, display = "sites")
+centroids <- scores(bound_dbrda, display = "cn")
+
+
+df_sites <- as.data.frame(site_scores)
+df_sites$unique_sample <- rownames(df_sites)
+bound_dbrda_df <- left_join(df_sites,meta_data)
+bound_dbrda_df$Boundary_descriptor
+bound_dbrda_df$Boundary_descriptor <- factor(bound_dbrda_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"),ordered = T)
+col_bound_cut<-c('chocolate','#FDE725FF',"#3B528BFF","#440154FF")
+
+eig_vals <- bound_dbrda$CCA$eig
+prop_var <- eig_vals / sum(eig_vals)
+
+xlab <- paste0("dbRDA1 (", round(prop_var[1] * 100, 1), "%)")
+ylab <- paste0("dbRDA2 (", round(prop_var[2] * 100, 1), "%)")
+
+#add in species arrows
+#rdRDA doesnt add species scores in automatically (due to them being calculated from the eucludian distance)
+#using hellinger transformed here
+counts_wide.Hellinger_filt <- disttransform(counts_wide_filt, method='hellinger')
+
+sppscores(bound_dbrda)<-counts_wide.Hellinger_filt
+
+# Calculate arrow length (distance from origin) to equate to species explaining most variation
+#top species
+species_scores <- scores(bound_dbrda, display = "species")
+
+sp_len <- sqrt(rowSums(species_scores^2))
+
+# Rank species by length
+head(sort(sp_len, decreasing = TRUE), 10)   # top 10 species for plot
+keep <- names(sp_len[sp_len > quantile(sp_len, 0.9)])  # top 10% longest arrows
+sp_filt <- species_scores[keep, ]
+
+#eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2023/24") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  theme_bw()
+
+
+#species in plot      
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2023/24") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+
+#add in species arrows & eclipses
+ggplot() +
+  geom_point(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor),size = 3) +
+  scale_colour_manual(values=col_bound_cut)+
+  scale_fill_manual(values=col_bound_cut)+
+  labs(x = xlab, y = ylab, color='Boundary type',title = "2023/24") +
+  geom_vline(xintercept = c(0), color = "grey70", linetype = 2) +
+  geom_hline(yintercept = c(0), color = "grey70", linetype = 2) +  
+  geom_segment(data=sp_filt, 
+     aes(x=0, y=0, xend=dbRDA1*2, yend=dbRDA2*2), 
+     colour="black", size=0.7, arrow=arrow()) +
+  stat_ellipse(data=bound_dbrda_df, aes(x = dbRDA1, y = dbRDA2, color = Boundary_descriptor,fill=Boundary_descriptor), 
+  type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F)+
+  geom_text_repel(data=sp_filt, 
+    aes(x=dbRDA1*2, y=dbRDA2*2, label=rownames(sp_filt)),
+    colour="black") +
+  theme_bw()
+
+
+```
+
+## iNEXT
+
+iNEXT (iNterpolation and EXTrapolation) is an R package, available in CRAN and Github, for rarefaction and extrapolation of species diversity (Hill numbers). It’s a useful package to use if you want to make any predictions about sampling size or diversity. 
+
+### Hill numbers
+
+Hill numbers are a set of diversity indices used in ecology and biodiversity assessments to quantify the richness and evenness of species in a given community. These indices were developed by Michael Hill and are widely used to summarize various aspects of biodiversity. Hill numbers are particularly useful because they provide a way to focus on different facets of diversity, depending on the specific questions or goals of a study. For a thorough introduction to Hill numbers check out: Alberdi & Gilbert
+
+
+There are several Hill numbers, but they all share a common formula that relies on an exponent, denoted as "q." The choice of the exponent determines which aspect of diversity is emphasized:
+
+- Richness (q = 0): Hill number with q = 0 is also known as the "species richness" or "taxonomic distinctness" index. It simply counts the number of unique species in a community without considering their abundances. This index is valuable when you want to emphasize the presence or absence of species but not their relative abundance.
+
+- Exponential Shannon entropy (q = 1): This index corresponds to the Shannon-Wiener diversity index (commonly referred to as Shannon entropy) when q is set to 1. It considers both the richness and the evenness of species abundances. It is often used when you want to give equal importance to species richness and evenness.
+
+- Inverse Simpson index (q = 2): The Inverse Simpson index corresponds to the Simpson diversity index when q is set to 2. This index emphasizes the dominance of the most abundant species in a community. It is often used when you want to give more weight to the presence of dominant species.
+
+- Higher Hill numbers (q > 2): These Hill numbers give increasing weight to the most abundant species, placing more emphasis on the dominant species in the community. The larger the value of q, the more sensitive the index becomes to the presence of dominant species.
+
+Hill numbers offer a flexible framework for assessing biodiversity because they allow you to choose the appropriate value of q based on the specific ecological question or management objective you are addressing. For example:
+
+- If you want to measure the overall diversity of a community while considering both species richness and evenness, you might use q = 1.
+
+- If you are concerned about the impact of a few highly dominant species in an ecosystem, you might use q = 2 or a higher value to focus on those dominant species.
+
+#iNEXT package
+iNEXT is a neat package that can calculate Hill numbers, enabling us to investigate alpha diversity accumulation curves (similar to species accumulation curves). These graphs can help us determine if sufficient sampling was conducted at each site, based on the plateauing of the curves, similar to the rarefaction curves. But iNEXT.3D goes beyond rarefraction and extrapolates alpha diversity numbers beyond the number of samples collected (default is double sample number). Its written by Anne Chao and you can find her papers here: https://sites.google.com/view/chao-lab-website/home
+
+### Running iNEXT
+
+```{r inext, echo=T,warning = FALSE}
+#innext uses a weird list of lists, this is a annoying format to get into
+#im using raw incident data as the input (thus it is made binary at one point in the code)
+
+#generate a list of the unique sample locations
+categories <- unique(data$Boundary_descriptor)
+categories
+
+#create empty list
+split_list <- list()
+#fill empty list with a presence absence OTU from each location
+
+data<-data %>% mutate(unique_ob=paste(Boundary_descriptor,Farm_name,Season)) 
+
+for (category in categories) {
+  subset_data <- data %>% filter(Boundary_descriptor == category)
+  test<-subset_data %>% ungroup() %>% dplyr::select(unique_ob,`New Inseck key name`,`Sum of Insects/100 flowers`)
+  test   <- test %>%  spread(key = unique_ob, value = `Sum of Insects/100 flowers`)
+  test<-test %>% remove_rownames %>% column_to_rownames(var="New Inseck key name")
+  test<-test %>% mutate(across(everything(), ~ ifelse(. > 0, 1, 0)))
+  split_list[[category]]<-as(test,'matrix')
+} 
+
+matrix_list <- list(data = list())
+for (category in categories) {
+  otu_table <- as(split_list[[category]], "matrix")
+  matrix_list[["data"]][[category]] <- otu_table
+}
+
+#here Im setting the endpoint as NULL which is double the input sample size (this is probably most robust)
+out.raw <- iNEXT3D(data = matrix_list$data, diversity = 'TD', q = c(0, 1, 2), datatype = 'incidence_raw', nboot = 50,endpoint=NULL)
+
+#there is various ways to look at these plots:
+#within a sample
+ggiNEXT3D(out.raw, type = 1, facet.var = 'Assemblage') + facet_wrap(~Assemblage, nrow = 3)
+#across samples
+ggiNEXT3D(out.raw, type = 1, facet.var = "Order.q")
+#sample completeness
+ggiNEXT3D(out.raw, type = 2, facet.var = "Order.q", color.var = "Assemblage")
+
+#using innext diversity estimates in a model
+
+
+```
+
+# Alternative plots for iNEXT
+
+Here i have set the endpoint as 50 - I doubt this is robust for the 1,2,3 year plots but makes the plots even. 'q1' in particular looks squiffy at 50.
+
+```{r inext2, echo=T,warning = FALSE}
+out.raw <- iNEXT3D(data = matrix_list$data, diversity = 'TD', q = c(0, 1, 2), datatype = 'incidence_raw', nboot = 50,endpoint=50)
+
+#there is various ways to look at these plots:
+#within a sample
+ggiNEXT3D(out.raw, type = 1, facet.var = 'Assemblage') + facet_wrap(~Assemblage, nrow = 3)
+#across samples
+ggiNEXT3D(out.raw, type = 1, facet.var = "Order.q")
+#sample completeness
+ggiNEXT3D(out.raw, type = 2, facet.var = "Order.q", color.var = "Assemblage")
+
+```
+
+
+

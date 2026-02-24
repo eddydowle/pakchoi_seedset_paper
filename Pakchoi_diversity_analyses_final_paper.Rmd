@@ -43,8 +43,8 @@ brads_col_2<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/E
 data$Boundary_descriptor<-gsub('one year old','One year old',data$Boundary_descriptor)
 data$Boundary_descriptor<-gsub('two year old','Two year old',data$Boundary_descriptor)
 data$Boundary_descriptor<-gsub('three year old','Three year old',data$Boundary_descriptor)
-data$Boundary_descriptor<-gsub('Bare_fence','Bare fence',data$Boundary_descriptor)
-data$Boundary_descriptor<-gsub('Control_farm','Control farm',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Bare_fence','On-farm bare fence',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Control_farm','Off-farm bare fence',data$Boundary_descriptor)
 
 #summarising counts to clean up dataset etc for box plots
 data_box<-data %>% select(-`Broad Insect category`,-Origin,-`Boundary age`,-`Sum of Insect_Count`,-`Flower count`) %>% group_by(`Farm type`,Farm_name,Season,Boundary_descriptor,`Insect key number`,`New Inseck key name`) %>% summarise(`Sum of Insects/100 flowers`=sum(`Sum of Insects/100 flowers`) )
@@ -82,7 +82,7 @@ Bar charts to view diversity over different groups
 #needs to be average by sampling number
 
 mydf_byboundary_farm_count<-mydf %>% select(-`Insect key number`,-`Farm type`,-Boundary_year) %>% mutate(unique_ob=paste(Boundary_descriptor,Farm_name,Season)) %>% select(-Farm_name,-Season) %>% group_by(Boundary_descriptor,`New Inseck key name`) %>% summarise(count_farms_perobs=sum(`Sum of Insects/100 flowers`)/n_distinct(unique_ob)) 
-mydf_byboundary_farm_count$Boundary_descriptor <- factor(mydf_byboundary_farm_count$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+mydf_byboundary_farm_count$Boundary_descriptor <- factor(mydf_byboundary_farm_count$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 mydf_byboundary_farm_count %>%   ggplot(aes(x = Boundary_descriptor, y = count_farms_perobs, fill = `New Inseck key name`)) +
   geom_bar(position='stack',stat='identity',width=0.4) +
@@ -101,7 +101,7 @@ mydf_byboundary_farm_count %>%   ggplot(aes(x = Boundary_descriptor, y = count_f
 mydf_byboundary<-mydf%>% select(-`Insect key number`,-Season,-`Farm type`,-Farm_name,-Boundary_year) %>% group_by(Boundary_descriptor,`New Inseck key name`) %>% summarise(total_count=sum(`Sum of Insects/100 flowers`)) %>% ungroup() %>% group_by(Boundary_descriptor) %>% mutate(per=100*total_count/sum(total_count)) %>% ungroup()
 
 #recolour and tidy
-mydf_byboundary$Boundary_descriptor <- factor(mydf_byboundary$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+mydf_byboundary$Boundary_descriptor <- factor(mydf_byboundary$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 mydf_byboundary %>%   ggplot(aes(x = Boundary_descriptor, y = per, fill = `New Inseck key name`)) +
   geom_bar(position='stack',stat='identity',width=0.4) +
@@ -132,7 +132,7 @@ mydf_byboundary_farm_count_yr<-mydf %>% select(-`Insect key number`,-`Farm type`
 
 mydf_byboundary_farm_count_yr<-mydf_byboundary_farm_count_yr %>% separate_wider_delim(Boundary_year,'_',names=c("Boundary_descriptor","Season"))
 
-mydf_byboundary_farm_count_yr$Boundary_descriptor <- factor(mydf_byboundary_farm_count_yr$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+mydf_byboundary_farm_count_yr$Boundary_descriptor <- factor(mydf_byboundary_farm_count_yr$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 mydf_byboundary_farm_count_yr %>%   ggplot(aes(x = Boundary_descriptor, y = count_farms_perobs, fill = `New Inseck key name`)) +
   geom_bar(position='stack',stat='identity',width=0.4) +
@@ -155,7 +155,7 @@ mydf_byboundary_yr<-mydf%>% select(-`Insect key number`,-Season,-`Farm type`,-Fa
 mydf_byboundary_yr<-mydf_byboundary_yr %>% separate_wider_delim(Boundary_year,'_',names=c("Boundary_descriptor","Season"))
 
 #recolour and tidy
-mydf_byboundary_yr$Boundary_descriptor <- factor(mydf_byboundary_yr$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+mydf_byboundary_yr$Boundary_descriptor <- factor(mydf_byboundary_yr$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 mydf_byboundary_yr %>%   ggplot(aes(x = Boundary_descriptor, y = per, fill = `New Inseck key name`)) +
   geom_bar(position='stack',stat='identity',width=0.4) +
@@ -188,8 +188,8 @@ brads_col_2<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/E
 data$Boundary_descriptor<-gsub('one year old','One year old',data$Boundary_descriptor)
 data$Boundary_descriptor<-gsub('two year old','Two year old',data$Boundary_descriptor)
 data$Boundary_descriptor<-gsub('three year old','Three year old',data$Boundary_descriptor)
-data$Boundary_descriptor<-gsub('Bare_fence','Bare fence',data$Boundary_descriptor)
-data$Boundary_descriptor<-gsub('Control_farm','Control farm',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Bare_fence','On-farm bare fence',data$Boundary_descriptor)
+data$Boundary_descriptor<-gsub('Control_farm','Off-farm bare fence',data$Boundary_descriptor)
 
 unique(data$Boundary_descriptor)
 colnames(data)
@@ -210,6 +210,9 @@ meta_data<-read_excel('C:/Users/hrlexd/Dropbox/PlantAndFood (1)/B4BI/Pakchoi/Cop
 rownames(meta_data) <- meta_data$unique_sample
 meta_data<-meta_data %>% mutate(month_split=paste(Collection_month,Beg_Mid_end,sep='_'))
 
+#check meta and count data match
+setdiff(row.names(counts_wide),meta_data$unique_sample)
+
 #brad colour scheme (control to old):
 col_bound<-c('chocolate','#FDE725FF',"#5DC863FF","#21908CFF",'#3B528BFF',"#440154FF")
 #col_bound
@@ -221,7 +224,7 @@ insect_counts<-rowSums(counts_wide)
 insect_counts_df<-data.frame(insect_counts)
 insect_counts_df <- rownames_to_column(insect_counts_df, var = "unique_sample")
 insect_counts_df<-left_join(insect_counts_df,meta_data)
-insect_counts_df$Boundary_descriptor <- factor(insect_counts_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+insect_counts_df$Boundary_descriptor <- factor(insect_counts_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 #split by season
 plot_sppr <- ggplot(insect_counts_df, aes(x = Boundary_descriptor, y = insect_counts, fill = Boundary_descriptor)) +
   geom_boxplot() +
@@ -261,7 +264,7 @@ anova(m0,m1)
 
 #final model
 m0<-lmer(insect_counts ~ Boundary_descriptor + offset(log(`Flower count`)) +(1|Season) +(1|Farm_name), data = meta_data)
-
+summary(m0)
 emm2 <- emmeans(m0, ~ Boundary_descriptor,type = "response")
 pairs(emm2,simple='each',  adjust = "tukey")
 
@@ -269,7 +272,7 @@ pairs(emm2,simple='each',  adjust = "tukey")
 cld_rich <- multcomp::cld(emm2, Letters = letters, adjust = "tukey")
 colnames(cld_rich)
 
-cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
   theme_bw()+
@@ -313,7 +316,7 @@ sppr_df <- sppr %>%
   enframe() %>% 
   full_join(meta_data, by = c("name" = "unique_sample"))
 
-sppr_df$Boundary_descriptor <- factor(sppr_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+sppr_df$Boundary_descriptor <- factor(sppr_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 #just boundary
 plot_sppr <- ggplot(sppr_df, aes(x = Boundary_descriptor, y = value, fill = Boundary_descriptor)) +
@@ -374,6 +377,7 @@ anova(m0,m1,m2,m3)
 #so date and season as random effect
 #month_split + farm name + season
 m3<-lmer(sppr ~ Boundary_descriptor + offset(log(`Flower count`))+(1|Season) + (1|month_split) + (1|Farm_name), data = meta_data)
+summary(m3)
 #back transform to species count
 emm1 <- emmeans(m3, ~ Boundary_descriptor, type = "response") 
 #pairwise test
@@ -383,7 +387,7 @@ pairs(emm1, simple='each', adjust = "tukey")
 cld_rich <- multcomp::cld(emm1, Letters = letters, adjust = "tukey")
 colnames(cld_rich)
 
-cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
   theme_bw()+
@@ -418,7 +422,7 @@ shannondiv_df <- shannondiv %>%
   enframe() %>% 
   full_join(meta_data, by = c("name" = "unique_sample"))
 
-shannondiv_df$Boundary_descriptor <- factor(shannondiv_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+shannondiv_df$Boundary_descriptor <- factor(shannondiv_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 
 #just boundary
@@ -461,7 +465,7 @@ anova(m0,m1,m2,m3)
 #m3 model which has date and site grouping....
 
 m3<-lmer(shannondiv ~ Boundary_descriptor + offset(log(`Flower count`))+(1|Season) + (1|month_split) + (1|Farm_name), data = meta_data)
-
+summary(m3)
 emm2 <- emmeans(m3, ~ Boundary_descriptor,type = "response")
 pairs(emm2,simple='each',  adjust = "tukey")
 
@@ -469,7 +473,7 @@ pairs(emm2,simple='each',  adjust = "tukey")
 cld_rich <- multcomp::cld(emm2, Letters = letters, adjust = "tukey")
 colnames(cld_rich)
 
-cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
 #  facet_wrap(~Season)+
@@ -505,7 +509,7 @@ simpsondiv_df <- simpsondiv %>%
   enframe() %>% 
   full_join(meta_data, by = c("name" = "unique_sample"))
 
-simpsondiv_df$Boundary_descriptor <- factor(simpsondiv_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+simpsondiv_df$Boundary_descriptor <- factor(simpsondiv_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 
 #just boundary
@@ -548,7 +552,7 @@ AIC(m0,m1,m2,m3) #m3
 anova(m0,m1,m2,m3)
 
 m3<-lmer(simpsondiv ~ Boundary_descriptor+ offset(log(`Flower count`))+(1|Season) + (1|month_split) + (1|Farm_name), data = meta_data)
-
+summary(m3)
 emm2 <- emmeans(m3, ~ Boundary_descriptor,type = "response")
 pairs(emm2,simple='each',  adjust = "tukey")
 
@@ -556,7 +560,7 @@ pairs(emm2,simple='each',  adjust = "tukey")
 cld_rich <- multcomp::cld(emm2, Letters = letters, adjust = "tukey")
 colnames(cld_rich)
 
-cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+cld_rich$Boundary_descriptor <- factor(cld_rich$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 ggplot(cld_rich, aes(x = Boundary_descriptor, y = emmean)) +
 #  facet_wrap(~Season)+
@@ -586,13 +590,13 @@ If the profiles cross over then it may not be possible to compare diversity. I f
 Im thinking that this suggests a lot more rare species are coming into the plantings compared to the bare fence. So the evenness becomes quite lower compared to the bare fence/control plantings. Which feeds into that science paper we discussed the other day about bee species rather than bee number being important. 
 
 ```{r renyi_q1,echo=T}
-meta_data$Boundary_descriptorf<-factor(meta_data$Boundary_descriptor, levels = c('Control farm','Bare fence',"One year old","Two year old","Three year old","Old"))
+meta_data$Boundary_descriptorf<-factor(meta_data$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
 meta_data_bior<-as.data.frame(meta_data)
 Renyi.1<-renyicomp(counts_wide,y=meta_data_bior,factor='Boundary_descriptorf', 
   scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
 renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
 renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
-renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Control farm','Bare fence',"One year old","Two year old","Three year old","Old"))
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
 
 pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
     scale_x_discrete() +
@@ -622,7 +626,7 @@ Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_des
   scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
 renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
 renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
-renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Control farm','Bare fence',"One year old","Two year old","Three year old","Old"))
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
 
 pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
     scale_x_discrete() +
@@ -638,23 +642,24 @@ pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, 
                 show.legend=FALSE) + 
      scale_colour_manual(values=col_bound)+
     theme_bw() +
-    #scale_colour_npg() +
-    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type")
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2023/24')
 pl_renyi_across
 
-  
-#2022/23
-meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
+
+#2023/24 but also dropping the one year old and two year old that only have one replicate
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2023/24') %>% filter(Boundary_descriptor!='One year old')%>% filter(Boundary_descriptor!='Two year old')
 meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
-meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Control farm','Bare fence',"Two year old","Old"))
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels =c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
 counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
 counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
 Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
   scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
 renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
 renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
-renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Control farm','Bare fence',"Two year old","Old"))
-col_bound_cut<-c('chocolate','#FDE725FF',"#21908CFF","#440154FF")
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"Three year old","Old"))
+
+col_bound_cut<-c('chocolate','#FDE725FF','#3B528BFF',"#440154FF")
 
 
 pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
@@ -672,21 +677,52 @@ pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, 
      scale_colour_manual(values=col_bound_cut)+
     theme_bw() +
     #scale_colour_npg() +
-    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type")
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2023/24')
 pl_renyi_across
 
-
-#2021/22
-meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+  
+#2022/23
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2022/23')
 meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
-meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Control farm','Bare fence',"One year old","Old"))
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
 counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
 counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
 Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
   scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
 renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
 renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
-renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Control farm','Bare fence',"One year old","Old"))
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"Two year old","Old"))
+col_bound_cut<-c('chocolate','#FDE725FF',"#21908CFF","#440154FF")
+pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
+    scale_x_discrete() +
+    scale_y_continuous(sec.axis = dup_axis(labels=NULL, name=NULL)) +
+    geom_line(data=renyi.long1_dataframe, 
+              aes(x=renyi.long1.Obs, colour=Boundary_descriptor), 
+              linewidth=2) +
+    geom_point(data=subset(renyi.long1_dataframe, renyi.long1.labelit==TRUE), 
+        aes(colour=Boundary_descriptor, shape=Boundary_descriptor), 
+        size=5) +
+    geom_ribbon(data=renyi.long1_dataframe, 
+                aes(x=renyi.long1.Obs, colour=Boundary_descriptor, fill=after_scale(alpha(colour, 0.1))), 
+                show.legend=FALSE) + 
+     scale_colour_manual(values=col_bound_cut)+
+    theme_bw() +
+    #scale_colour_npg() +
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2022/23')
+pl_renyi_across
+
+
+#2021/22
+meta_data_bior_season<-meta_data_bior %>% filter(Season=='2021/22')
+meta_data_bior_season %>% select(Boundary_descriptor) %>% group_by(Boundary_descriptor) %>% summarise(count = n())
+meta_data_bior_season$Boundary_descriptorf<-factor(meta_data_bior_season$Boundary_descriptor, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
+counts_wide_filt <- counts_wide[rownames(counts_wide) %in% meta_data_bior_season$unique_sample, ]
+counts_wide_filt <- counts_wide_filt[,colSums(counts_wide_filt) > 0]
+Renyi.1<-renyicomp(counts_wide_filt,y=meta_data_bior_season,factor='Boundary_descriptorf', 
+  scales=c(0, 0.25, 0.5, 1, 2, 4, 8, Inf), permutations=1000, plotit=F)
+renyi.long1 <- renyicomp.long(Renyi.1, label.freq=1)
+renyi.long1_dataframe<-data.frame(renyi.long1$labelit,renyi.long1$Scales,renyi.long1$Obs,renyi.long1$Diversity,renyi.long1$UPR,renyi.long1$LWR,renyi.long1$Grouping)
+renyi.long1_dataframe$Boundary_descriptor<-factor(renyi.long1_dataframe$renyi.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Old"))
 col_bound_cut<-c('chocolate','#FDE725FF',"#5DC863FF","#440154FF")
 
 pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, y=renyi.long1.Diversity, ymax=renyi.long1.UPR, ymin=renyi.long1.LWR)) + 
@@ -704,7 +740,7 @@ pl_renyi_across <- ggplot(data=renyi.long1_dataframe, aes(x=renyi.long1.Scales, 
      scale_colour_manual(values=col_bound_cut)+
     theme_bw() +
     #scale_colour_npg() +
-    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type")
+    labs(x=expression(alpha), y = "Diversity", colour = "Boundary type", shape = "Boundary type",title='Season 2021/22')
 pl_renyi_across
 
 #hmmm pattern holds across seasons, I thought maybe that it would be one season throwing everyone out
@@ -714,7 +750,7 @@ Accum.1 <- accumcomp(counts_wide,y=meta_data_bior,factor='Boundary_descriptorf',
     method='exact', conditioned=FALSE, plotit=FALSE)
 accum.long1 <- accumcomp.long(Accum.1, ci=NA, label.freq=5)
 accum.long1_dataframe<-data.frame(accum.long1$Grouping,accum.long1$Obs,accum.long1$Sites,accum.long1$Richness,accum.long1$LWR,accum.long1$UPR,accum.long1$labelit)
-accum.long1_dataframe$Boundary_descriptor<-factor(accum.long1_dataframe$accum.long1.Grouping, levels = c('Control farm','Bare fence',"One year old","Two year old","Three year old","Old"))
+accum.long1_dataframe$Boundary_descriptor<-factor(accum.long1_dataframe$accum.long1.Grouping, levels = c('Off-farm bare fence','On-farm bare fence',"One year old","Two year old","Three year old","Old"))
 
 
 plotgg1 <- ggplot(data=accum.long1_dataframe, aes(x = accum.long1.Sites, y = accum.long1.Richness, ymax = accum.long1.UPR, ymin = accum.long1.LWR)) + 
@@ -797,7 +833,7 @@ plot_df <- scores(pk_NMDS, display = "sites") %>%
   rownames_to_column("site") %>% 
   full_join(meta_data, by = c("site" = "unique_sample"))
 
-plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+plot_df$Boundary_descriptor <- factor(plot_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 
 plot_nmds <- ggplot(plot_df, aes(x = NMDS1, y = NMDS2, color = Boundary_descriptor)) +
@@ -825,7 +861,7 @@ plot2 <- ordiplot(Ordination.model2, choices=c(1,2))
 sites.long2 <- sites.long(plot2, env.data=meta_data_bior)
 species.long2 <- species.long(plot2)
 axis.long2 <- axis.long(Ordination.model2, choices=c(1, 2))
-sites.long2$Boundary_descriptor <- factor(sites.long2$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+sites.long2$Boundary_descriptor <- factor(sites.long2$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 #just dots
 plotgg2 <- ggplot() + 
@@ -934,7 +970,7 @@ df_sites <- as.data.frame(site_scores)
 df_sites$unique_sample <- rownames(df_sites)
 capscale_df <- left_join(df_sites,meta_data)
 
-capscale_df$Boundary_descriptor <- factor(capscale_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+capscale_df$Boundary_descriptor <- factor(capscale_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 eig_vals <- cap$CCA$eig
 prop_var <- eig_vals / sum(eig_vals)
@@ -1024,7 +1060,7 @@ df_sites <- as.data.frame(site_scores)
 df_sites$unique_sample <- rownames(df_sites)
 bound_dbrda_df <- left_join(df_sites,meta_data)
 
-bound_dbrda_df$Boundary_descriptor <- factor(capscale_df$Boundary_descriptor,levels=c('Control farm','Bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
+bound_dbrda_df$Boundary_descriptor <- factor(capscale_df$Boundary_descriptor,levels=c('Off-farm bare fence','On-farm bare fence','One year old','Two year old','Three year old','Old'),ordered = T)
 
 eig_vals <- bound_dbrda$CCA$eig
 prop_var <- eig_vals / sum(eig_vals)

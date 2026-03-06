@@ -914,10 +914,39 @@ plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
        y = "Seed set",
        title = "Seed set vs species richness", colour = "Boundary type")+
   theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
-
 plot_sppr
 
+plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
+  geom_point(aes(colour = Boundary_descriptor,shape=Season)) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Species richness (count)",
+       y = "Seed set",
+       title = "Seed set vs species richness", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+plot_sppr
+
+plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
+  geom_point(aes(colour = Boundary_descriptor,shape=Season)) +
+  facet_wrap(~Boundary_descriptor) +
+  scale_colour_manual(values=col_bound)+
+  stat_poly_line() +
+  stat_poly_eq() +
+   theme_bw()+
+  labs(x = "Species richness (count)",
+       y = "Seed set",
+       title = "Seed set vs species richness", colour = "Boundary type")+
+  theme(axis.text.x = element_text(angle = 90,size=7,hjust=1))
+plot_sppr
+
+#correlation between seed set yeild and species richness
+cor(sppr_df_ss$value,sppr_df_ss$Open)
+
 #model it properly with everything in like it should be:
+names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
+
 #seedset is fairly normal
 #but note that it is the average not the raw counts (hence lmer)
 hist(sppr_df_ss$Open)
@@ -925,16 +954,7 @@ hist(sppr_df_ss$Open)
 #model with flower count season and site (last two random effects)
 names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
 
-m3<-lmer(Open ~ value + log(Flower_count)+(1|Season) + (1|Site) ,data=sppr_df_ss)
-summary(m3)
-
 m3<-lmer(Open ~ value  +log(Flower_count)+(1|Season) +(1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
-summary(m3)
-
-m3<-lmer(Open ~ value + Boundary_descriptor +log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
-summary(m3)
-
-m3<-lmer(Open ~ value + Boundary_descriptor +log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
 summary(m3)
 
 qqnorm(residuals(m3))
@@ -947,7 +967,6 @@ testDispersion(res)
 testZeroInflation(res)
 
 #bl_regression(m0)
-
 p <- ggpredict(m3,terms = "value")
 
 ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
@@ -962,10 +981,6 @@ ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
 #by season
 m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
 summary(m3)
-m3<-lmer(Open ~ value + log(Flower_count)+Season + Boundary_descriptor+ (1|Site),data=sppr_df_ss)
-summary(m3)
-m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
-summary(m3)
 
 
 qqnorm(residuals(m3))
@@ -979,22 +994,6 @@ testZeroInflation(res)
 
 p <- ggpredict(m3,terms = c("value","Season"))
 plot(p)
-ggplot(p, aes(x = x, y = predicted,colour = group, fill = group)) +
-  geom_line(size = 1.2) +
-  geom_ribbon(aes(ymin = conf.low, ymax = conf.high),alpha = 0.25, colour = NA) +
- labs(
-    x = "Species richness",
-    y = "Mean seed set per site",
-    title = "Marginal prediction: seed set vs species richness",
-    colour = "Season",
-    fill = "Season"
-  ) +
-  theme_bw() +
-  theme(
-    legend.position = "right",
-    axis.title = element_text(size = 12),
-    axis.text = element_text(size = 11)
-  )
 
 ggplot() +
   geom_point(data = sppr_df_ss,aes(x = value, y = Open),alpha = 0.4, size = 2) +
@@ -1008,38 +1007,6 @@ ggplot() +
   ) +
   theme_bw()
 
-
-#what about just those that are measured across all seasons so only compare old and bare fences
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Off-farm bare fence'|Boundary_descriptor=='On-farm bare fence'|Boundary_descriptor=='Old')
-m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss_cut)
-summary(m3)
-
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Old')
-m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
-summary(m3)
-
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='Off-farm bare fence')
-m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
-summary(m3)
-
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Boundary_descriptor=='On-farm bare fence')
-m3<-lmer(Open ~ value + log(Flower_count) +Season+ (1|Site) ,data=sppr_df_ss_cut)
-summary(m3)
-
-
-#or only within a season
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2021/22')
-#by season
-m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
-summary(m3)
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2022/23')
-#by season
-m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
-summary(m3)
-sppr_df_ss_cut<-sppr_df_ss %>% filter(Season=='2023/24')
-#by season
-m3<-lmer(Open ~ value + log(Flower_count) + (1|Boundary_descriptor),data=sppr_df_ss_cut)
-summary(m3)
 
 #####################
 #seed set vs shannon#
@@ -1067,7 +1034,7 @@ sppr_df_ss <-sppr_df_ss  %>%
 
 #open pollination being insect pollination:
 plot_sppr <- ggplot(sppr_df_ss, aes(x = value, y = Open)) +
-  geom_point(aes(colour = Boundary_descriptor)) +
+  geom_point(aes(colour = Boundary_descriptor,shape=Season)) +
   scale_colour_manual(values=col_bound)+
   stat_poly_line() +
   stat_poly_eq() +
@@ -1081,10 +1048,13 @@ plot_sppr
 
 #model it properly with everything in like it should be:
 
+#correlation between seed set yeild and species richness
+cor(sppr_df_ss$value,sppr_df_ss$Open)
+
 #flower count goes in a offset in earlier models but here richness is response so its going in as a variable
 #model with flower count season and site (last two random effects)
 names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
-m3<-lmer(Open ~ value + log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
+m3<-lmer(Open ~ value  +log(Flower_count)+(1|Season) +(1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
 
 summary(m3)
 qqnorm(residuals(m3))
@@ -1108,7 +1078,7 @@ ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
   theme_bw()
 
 #by season
-m3<-lmer(Open ~ value + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+m3<-lmer(Open ~ value + log(Flower_count)+Season +(1|Boundary_descriptor)+(1|Site),data=sppr_df_ss)
 summary(m3)
 qqnorm(residuals(m3))
 qqline(residuals(m3))
@@ -1172,7 +1142,7 @@ sppr_df_ss <-sppr_df_ss  %>%
 
 #open pollination being insect pollination:
 plot_sppr <- ggplot(sppr_df_ss, aes(x = insect_counts, y = Open)) +
-  geom_point(aes(colour = Boundary_descriptor)) +
+  geom_point(aes(colour = Boundary_descriptor,shape=Season)) +
   scale_colour_manual(values=col_bound)+
   stat_poly_line() +
   stat_poly_eq() +
@@ -1184,13 +1154,17 @@ plot_sppr <- ggplot(sppr_df_ss, aes(x = insect_counts, y = Open)) +
 
 plot_sppr
 
+
+#correlation between seed set yeild and species richness
+cor(sppr_df_ss$insect_counts,sppr_df_ss$Open)
+
 #model it properly with everything in like it should be:
 
 #flower count goes in a offset in earlier models but here richness is response so its going in as a variable
 #model with flower count season and site (last two random effects)
 names(sppr_df_ss)[names(sppr_df_ss) == "Flower count"] <- "Flower_count"
 
-m3<-lmer(Open ~ insect_counts + log(Flower_count)+(1|Season) + (1|Site),data=sppr_df_ss)
+m3<-lmer(Open ~ insect_counts + log(Flower_count)+(1|Season) +(1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
 summary(m3)
 
 plot(m3)
@@ -1216,7 +1190,7 @@ ggplot(p, aes(x, x + mean(sppr_df_ss$value), y = predicted)) +
   theme_bw()
 
 #by season
-m3<-lmer(Open ~ insect_counts + log(Flower_count)+Season + (1|Site),data=sppr_df_ss)
+m3<-lmer(Open ~ insect_counts + log(Flower_count)+Season +(1|Boundary_descriptor)+ (1|Site),data=sppr_df_ss)
 summary(m3)
 qqnorm(residuals(m3))
 qqline(residuals(m3))
@@ -1464,14 +1438,11 @@ For the species lines note that I double the length here for plotting
 ```{r rda_mds, echo=T,warning = FALSE}
 counts_wide.Hellinger <- disttransform(counts_wide, method='hellinger')
 #add conditions here for random effects:
-#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data=meta_data_bior, scaling="species")
+
 meta_data_bior$log_flower <- scale(log1p(meta_data_bior$`Flower count`))
-#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  log_flower + Condition(Season), data=meta_data_bior, scaling="species")
 
-Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf + `Flower count` + Season, data=meta_data_bior, scaling="species")
-#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf + `Flower count` + Condition(Season), data=meta_data_bior, scaling="species")
-
-#Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf +  offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data=meta_data_bior, scaling="species")
+#for paper:
+Ordination.model2 <- rda(counts_wide.Hellinger ~ Boundary_descriptorf + `Flower count` + Season+ Condition(Site), data=meta_data_bior, scaling="species")
 
 plot2 <- ordiplot(Ordination.model2, choices=c(1,2))
 sites.long2 <- sites.long(plot2, env.data=meta_data_bior)
@@ -1572,20 +1543,13 @@ type='t',level=0.95,geom='polygon',alpha=0.1,show.legend=F) +
 plotgg2
 
 #alternative would be ddRDA or capscale on bray distance (PCoA) which might be better for us for differences between communities
-#cap <- capscale(counts_wide ~ Boundary_descriptorf + `Flower count` + Condition(Season), data = meta_data_bior, distance = "bray")
-cap <- capscale(counts_wide ~ Boundary_descriptorf + `Flower count` + Season, data = meta_data_bior, distance = "bray")
-
-#I cant get sites in as a condition it bounds it up too much but this issue isnt really a problem for within a season 
-#cap <- capscale(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data = meta_data_bior, distance = "bray")
-#cap <- capscale(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
-#cap <- capscale(counts_wide.Hellinger ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+cap <- capscale(counts_wide ~ Boundary_descriptorf + `Flower count` +  Season + Condition(Site), data = meta_data_bior, distance = "bray")
 
 anova(cap, by = "terms")
 plot(cap)
 site_scores <- scores(cap, display = "sites")
 species_scores <- scores(cap, display = "species")
 centroids <- scores(cap, display = "cn")
-
 
 df_sites <- as.data.frame(site_scores)
 df_sites$unique_sample <- rownames(df_sites)
@@ -1666,13 +1630,7 @@ ggplot() +
 
 #I think ddRDA is probably slightly better than capscale from what I've read but they do a similar thing 
 
-#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` + Condition(Season), data = meta_data_bior, distance = "bray")
-#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` +Season + Condition(Site), data = meta_data_bior, distance = "bray")
-bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` +Season , data = meta_data_bior, distance = "bray")
-#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(month_split), data = meta_data_bior, distance = "bray")
-
-#bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
-#bound_dbrda <- dbrda(counts_wide.Hellinger ~ Boundary_descriptorf + offset(log(`Flower count`)) + Condition(Season)+Condition(Farm_name)+Condition(month_split), data = meta_data_bior, distance = "bray")
+bound_dbrda <- dbrda(counts_wide ~ Boundary_descriptorf + `Flower count` +Season + Condition(Site) , data = meta_data_bior, distance = "bray")
 
 bound_dbrda_summary<-summary(bound_dbrda)
 plot(bound_dbrda)

@@ -51,6 +51,7 @@ pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heat
   #   Farm=="Nutpoint" & Simplified_Boundary=="Bare_fence" ~ "Control_farm",
   #   TRUE ~ Simplified_Boundary
   # )) %>%
+  mutate(Simplified_Boundary=ifelse( (Farm=="Tweed" & Simplified_Boundary=="Control_farm"), "Bare_fence", Simplified_Boundary)) %>%
   mutate(Year=factor(Year), 
          Farm=factor(Farm),
          Property_Grouping=factor(Property_Grouping),
@@ -99,10 +100,10 @@ pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heat
                         "Lochan Mor"="Lochan_Mor",
                         "Te Maania"="Te_maania",
                         "Terrace View"="Terrace_view")) %>%
-  mutate(Year=fct_recode(Year, "2021-2022"="2021_2022", "2022-2023"="2022_2023", "2023-2024"="2023_2024")) 
+  mutate(Year=fct_recode(Year, "2021-2022"="2021_2022", "2022-2023"="2022_2023", "2023-2024"="2023_2024"))
 
 
-dairy_arable <- read_excel("Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx", sheet="Sheet1", range="A3:C57") %>%
+dairy_arable <- read_excel("Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx", sheet="Sheet1", range="A3:C55") %>%
   mutate(Farm=str_replace(Farm, "Te_maania", "Te_Maania")) %>%
   mutate(Farm=str_replace(Farm, "Terrace_view", "Terrace_View")) %>%
   mutate(Farm=factor(str_replace(Farm, "_", " ")), Simplified_Boundary=factor(str_replace(Simplified_Boundary, "_", " ")),

@@ -97,9 +97,9 @@ Year,Farm,Type_of_farm,Simplified_Boundary,Native_new_age,Treatment,Mean_seeds_v
 2021-2022,Tweed,Arable,New native,One-year old native,Hand pollinated,17.166666666666664
 2021-2022,Tweed,Arable,New native,One-year old native,Open,9.5
 2021-2022,Tweed,Arable,New native,One-year old native,Closed,0
-2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,14
-2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Open,8
-2021-2022,Tweed,NA,Control farm,Off-farm bare fence,Closed,0
+2021-2022,Tweed,Arable,Bare fence,Off-farm bare fence,Hand pollinated,14
+2021-2022,Tweed,Arable,Bare fence,Off-farm bare fence,Open,8
+2021-2022,Tweed,Arable,Bare fence,Off-farm bare fence,Closed,0
 2021-2022,Wakanui,Arable,New native,One-year old native,Hand pollinated,17.166666666666668
 2021-2022,Wakanui,Arable,New native,One-year old native,Open,13.416666666666666
 2021-2022,Wakanui,Arable,New native,One-year old native,Closed,0.75
@@ -210,9 +210,9 @@ Year,Farm,Type_of_farm,Simplified_Boundary,Native_new_age,Treatment,Mean_seeds_v
 2022-2023,Tweed,Arable,New native,Two-year old native,Hand pollinated,17.116666666666667
 2022-2023,Tweed,Arable,New native,Two-year old native,Open,17.483333333333334
 2022-2023,Tweed,Arable,New native,Two-year old native,Closed,0
-2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,20.166666666666668
-2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Open,16.844444444444445
-2022-2023,Tweed,NA,Control farm,Off-farm bare fence,Closed,1.1111111111111112
+2022-2023,Tweed,Arable,Bare fence,Off-farm bare fence,Hand pollinated,20.166666666666668
+2022-2023,Tweed,Arable,Bare fence,Off-farm bare fence,Open,16.844444444444445
+2022-2023,Tweed,Arable,Bare fence,Off-farm bare fence,Closed,1.1111111111111112
 2022-2023,Wakanui,Arable,New native,Two-year old native,Hand pollinated,18.305555555555554
 2022-2023,Wakanui,Arable,New native,Two-year old native,Open,17.72222222222222
 2022-2023,Wakanui,Arable,New native,Two-year old native,Closed,0.2222222222222222
@@ -307,9 +307,9 @@ Year,Farm,Type_of_farm,Simplified_Boundary,Native_new_age,Treatment,Mean_seeds_v
 2023-2024,Tweed,Arable,New native,Three-year old native,Hand pollinated,21.77777777777778
 2023-2024,Tweed,Arable,New native,Three-year old native,Open,20.166666666666668
 2023-2024,Tweed,Arable,New native,Three-year old native,Closed,1
-2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Hand pollinated,17.96666666666667
-2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Open,15
-2023-2024,Tweed,NA,Control farm,Off-farm bare fence,Closed,0
+2023-2024,Tweed,Arable,Bare fence,Off-farm bare fence,Hand pollinated,17.96666666666667
+2023-2024,Tweed,Arable,Bare fence,Off-farm bare fence,Open,15
+2023-2024,Tweed,Arable,Bare fence,Off-farm bare fence,Closed,0
 2023-2024,Wakanui,Arable,New native,Three-year old native,Hand pollinated,15.816666666666666
 2023-2024,Wakanui,Arable,New native,Three-year old native,Open,16.566666666666666
 2023-2024,Ward,Arable,Old native,Old native,Hand pollinated,18.433333333333334

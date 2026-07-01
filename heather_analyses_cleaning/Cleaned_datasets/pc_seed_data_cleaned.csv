@@ -1169,19 +1169,19 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2021-2022,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,2,11,3,20,0,One-year old native,Dairy
 2021-2022,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,2,11,7,14,0,One-year old native,Dairy
 2021-2022,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,2,11,8,13,0,One-year old native,Dairy
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,1,1,0,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,1,1,0,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,4,1,16,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,4,2,12,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,4,3,15,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,4,4,18,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,11,9,10,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,11,10,11,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,11,11,13,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,11,8,17,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,2,1,10,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,2,2,8,0,Off-farm bare fence,NA
-2021-2022,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,1,1,7,0,Off-farm bare fence,NA
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,1,1,0,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,1,1,0,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,4,1,16,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,4,2,12,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,4,3,15,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,4,4,18,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,11,9,10,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,11,10,11,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,11,11,13,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,11,8,17,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,2,1,10,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,2,2,8,0,Off-farm bare fence,Arable
+2021-2022,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,1,1,7,0,Off-farm bare fence,Arable
 2021-2022,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,1,1,0,0,One-year old native,Arable
 2021-2022,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,2,2,0,0,One-year old native,Arable
 2021-2022,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,2,2,1,0,0,One-year old native,Arable
@@ -2959,59 +2959,59 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2022-2023,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,3,10,3,7,3,Two-year old native,Dairy
 2022-2023,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,3,10,4,17,3,Two-year old native,Dairy
 2022-2023,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Open,NA,3,10,5,10,1,Two-year old native,Dairy
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,3,0,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,4,3,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,5,0,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,6,1,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,7,3,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,10,8,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,1,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,2,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,3,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,4,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,5,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,10,6,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,1,7,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,2,1,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,3,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,4,0,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,5,1,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,3,10,6,4,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,5,18,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,6,18,3,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,7,15,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,8,22,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,9,25,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,10,10,28,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,4,19,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,5,20,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,6,23,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,7,26,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,8,20,4,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,10,9,20,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,3,17,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,4,16,1,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,5,18,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,6,21,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,7,21,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,3,10,8,16,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,10,3,16,8,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,10,6,16,12,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,10,7,12,18,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,10,9,7,15,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,10,10,20,8,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,5,12,2,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,6,12,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,7,12,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,8,24,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,9,18,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,10,10,19,3,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,1,21,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,2,19,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,3,20,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,6,21,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,7,18,0,Off-farm bare fence,NA
-2022-2023,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,10,8,22,0,Off-farm bare fence,NA
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,3,0,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,4,3,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,5,0,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,6,1,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,7,3,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,10,8,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,1,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,2,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,3,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,4,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,5,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,10,6,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,1,7,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,2,1,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,3,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,4,0,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,5,1,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,3,10,6,4,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,5,18,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,6,18,3,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,7,15,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,8,22,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,9,25,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,10,10,28,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,4,19,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,5,20,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,6,23,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,7,26,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,8,20,4,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,10,9,20,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,3,17,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,4,16,1,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,5,18,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,6,21,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,7,21,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,3,10,8,16,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,10,3,16,8,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,10,6,16,12,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,10,7,12,18,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,10,9,7,15,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,10,10,20,8,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,5,12,2,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,6,12,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,7,12,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,8,24,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,9,18,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,10,10,19,3,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,1,21,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,2,19,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,3,20,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,6,21,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,7,18,0,Off-farm bare fence,Arable
+2022-2023,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,10,8,22,0,Off-farm bare fence,Arable
 2022-2023,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,10,1,0,0,Two-year old native,Arable
 2022-2023,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,10,2,0,0,Two-year old native,Arable
 2022-2023,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,10,3,0,0,Two-year old native,Arable
@@ -4062,11 +4062,11 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2023-2024,Pareka,Pareka,Native_2018,Old native,Mixed_native,2018,Open,NA,3,6,4,26,NA,Old native,Dairy
 2023-2024,Pareka,Pareka,Native_2018,Old native,Mixed_native,2018,Open,NA,3,6,5,17,NA,Old native,Dairy
 2023-2024,Pareka,Pareka,Native_2018,Old native,Mixed_native,2018,Open,NA,3,6,6,22,NA,Old native,Dairy
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,5,1,8,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,5,2,13,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,5,3,21,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,5,4,14,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,1,5,5,23,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,5,1,8,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,5,2,13,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,5,3,21,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,5,4,14,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,1,5,5,23,NA,Off-farm bare fence,Arable
 2023-2024,Ward,Ward_Wakanui,Bare_fence,Bare fence,Bare_fence,*,Open,NA,2,7,2,9,NA,On-farm bare fence,Arable
 2023-2024,Ward,Ward_Wakanui,Bare_fence,Bare fence,Bare_fence,*,Open,NA,2,7,3,8,NA,On-farm bare fence,Arable
 2023-2024,Ward,Ward_Wakanui,Bare_fence,Bare fence,Bare_fence,*,Open,NA,2,7,4,15,NA,On-farm bare fence,Arable
@@ -4154,10 +4154,10 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2023-2024,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Closed,NA,2,5,3,0,NA,Three-year old native,Dairy
 2023-2024,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Closed,NA,3,5,4,0,NA,Three-year old native,Dairy
 2023-2024,Terrace View,Terrace_view,Native_2021,New native,Mixed_native,2021,Closed,NA,3,5,5,0,NA,Three-year old native,Dairy
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,4,1,0,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,4,2,0,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,4,3,0,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,1,4,4,0,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,4,1,0,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,4,2,0,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,4,3,0,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,1,4,4,0,NA,Off-farm bare fence,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,6,1,0,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,6,2,0,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,1,6,3,0,NA,Three-year old native,Arable
@@ -4171,9 +4171,9 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,3,6,3,0,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,3,6,4,0,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Closed,NA,3,6,5,0,NA,Three-year old native,Arable
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,3,1,0,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,3,2,0,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Closed,NA,2,3,3,0,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,3,1,0,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,3,2,0,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Closed,NA,2,3,3,0,NA,Off-farm bare fence,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,1,10,2,24,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,1,10,3,22,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,1,10,5,25,NA,Three-year old native,Arable
@@ -4186,34 +4186,34 @@ Year,Farm,Property_Grouping,PK_Boundary,Simplified_Boundary,Very_Simplified_Boun
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,2,8,4,24,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,2,8,6,24,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,2,8,8,20,NA,Three-year old native,Arable
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,3,1,13,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,3,2,23,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,1,3,3,22,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,3,1,13,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,3,2,23,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,1,3,3,22,NA,Off-farm bare fence,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,1,21,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,2,20,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,4,23,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,5,23,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,6,18,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Hand pollinated,NA,3,7,7,25,NA,Three-year old native,Arable
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,5,1,13,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,5,2,19,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,5,3,17,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,5,4,19,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Hand pollinated,NA,2,5,5,15,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,9,1,7,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,9,2,10,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,9,4,7,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,9,5,10,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,2,9,6,5,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,5,1,13,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,5,2,19,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,5,3,17,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,5,4,19,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Hand pollinated,NA,2,5,5,15,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,9,1,7,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,9,2,10,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,9,4,7,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,9,5,10,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,2,9,6,5,NA,Off-farm bare fence,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,1,4,1,24,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,1,4,2,26,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,1,4,3,22,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,1,4,4,28,NA,Three-year old native,Arable
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,5,1,20,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,5,2,21,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,5,3,29,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,5,4,14,NA,Off-farm bare fence,NA
-2023-2024,Tweed,Tweed,Control_farm,Control farm,Bare_fence,*,Open,NA,3,5,5,23,NA,Off-farm bare fence,NA
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,5,1,20,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,5,2,21,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,5,3,29,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,5,4,14,NA,Off-farm bare fence,Arable
+2023-2024,Tweed,Tweed,Control_farm,Bare fence,Bare_fence,*,Open,NA,3,5,5,23,NA,Off-farm bare fence,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,2,7,1,23,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,2,7,2,25,NA,Three-year old native,Arable
 2023-2024,Tweed,Tweed,Native_2021,New native,Mixed_native,2021,Open,NA,2,7,3,26,NA,Three-year old native,Arable

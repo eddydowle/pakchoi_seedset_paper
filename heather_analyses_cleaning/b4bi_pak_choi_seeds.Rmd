@@ -136,16 +136,28 @@ First we look at the data in a single graph and then with the farm types separat
 
 ```{r, fig.height=4.75}
 set.seed(1989)
+
 pc_sum %>% 
-  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated")) %>%
+  mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"),
+         Simplified_Boundary=fct_recode(Simplified_Boundary, 
+                                        "Old native SNH"="Old native",
+                                        "New native SNH"="New native",
+                                        "On-farm bare fence"="Bare fence",
+                                        "Off-farm bare fence"="Control farm"
+                                        )) %>%
   ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Type_of_farm)) + 
   geom_jitter(height=0, width=0.3, size=1) + 
   # geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
-  facet_grid(Year~Simplified_Boundary) + theme_minimal() +
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=12) +
   labs(x="", y="Mean number of viable seeds", color="") +
   theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
   scale_color_manual(values=c("darkred", "#F8766D", "#CD9600", "#00BA38", "#C77CFF", "#619CFF")) +
-  theme(legend.position = "bottom")
+  theme(
+  legend.position = "bottom",
+  legend.margin = margin(t = -10),
+  legend.spacing.y = unit(0.1, "cm"),
+  legend.key.height = unit(0.3, "cm")
+) 
 ```
 
 <br>
@@ -306,7 +318,7 @@ kable(Anova(mod.lm),digits=6, format = "pandoc")
 
 The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
 in a table. Note that the post-hoc pairwise comparison p-values were adjusted
-using the False Discovery Rate (FDR) correction to account for multiple tests.
+using the Šidák correction to account for multiple tests.
 
 <br>
 
@@ -323,7 +335,7 @@ emmip(mod.lm, Simplified_Boundary ~ Treatment,
 #       ylab="Predicted mean number of viable seeds", 
 #       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -334,7 +346,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```
@@ -373,7 +385,7 @@ emmip(mod.lm, Simplified_Boundary ~ Treatment,
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -384,7 +396,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```
@@ -508,7 +520,7 @@ kable(Anova(mod.lm),digits=6, format = "pandoc")
 
 The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
 in a table. Note that the post-hoc pairwise comparison p-values were adjusted
-using the False Discovery Rate (FDR) correction to account for multiple tests.
+using the Šidák correction to account for multiple tests.
 
 <br>
 
@@ -525,7 +537,7 @@ emmip(mod.lm, Simplified_Boundary ~ Treatment,
 #       ylab="Predicted mean number of viable seeds", 
 #       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -536,7 +548,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```
@@ -577,7 +589,7 @@ emmip(mod.lm, Simplified_Boundary ~ Treatment,
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -588,7 +600,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="Simplified boundary")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```
@@ -637,7 +649,7 @@ kable(Anova(mod.lm),digits=6, format = "pandoc")
 
 The two-way interaction is significant. The modelled/predicted means and 95% confidence intervals are graphed and given
 in a table. Note that the post-hoc pairwise comparison p-values were adjusted
-using the False Discovery Rate (FDR) correction to account for multiple tests.
+using the Šidák correction to account for multiple tests.
 
 <br>
 
@@ -654,7 +666,7 @@ emmip(mod.lm, Native_new_age ~ Treatment,
 #       ylab="Predicted mean number of viable seeds", 
 #       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~Native_new_age|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~Native_new_age|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -665,7 +677,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```
@@ -707,7 +719,7 @@ emmip(mod.lm, Native_new_age ~ Treatment,
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
 
-emm <- emmeans(mod.lm, ~ Native_new_age|Treatment, adjust="fdr") 
+emm <- emmeans(mod.lm, ~ Native_new_age|Treatment, adjust="sidak") 
 emm %>% as.data.frame() %>% 
   dplyr::select(-SE, -df) %>%
   rename(`Predicted mean`=emmean) %>%
@@ -718,7 +730,7 @@ emm %>% as.data.frame() %>%
 
 ```{r, fig.height=3.75}
 plot(emm) + labs(x="Predicted mean number of viable seeds", y="")
-contrast(emm, method="pairwise", adjust="fdr", type = "response")
+contrast(emm, method="pairwise", adjust="sidak", type = "response")
 # mod.pm <- predictmeans(mod.lm, "Treatment:Simplified_Boundary", adj="fdr", pairwise=TRUE, newwd = FALSE) 
 # mod.pm$mean_table
 ```

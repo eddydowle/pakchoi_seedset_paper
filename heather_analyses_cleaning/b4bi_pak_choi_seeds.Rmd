@@ -333,12 +333,12 @@ using the FDR correction to account for multiple tests.
 <br>
 
 ```{r, fig.height=2.5}
-emmip(mod.lm, Simplified_Boundary ~ Treatment, 
-      tlab="",
+emmip(mod.lm, Simplified_Boundary ~ Treatment,
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
-
+      
 # emmip(mod.lm, Treatment ~ Simplified_Boundary, 
 #       tlab="",
 #       xlab="", 
@@ -390,7 +390,7 @@ in a table.
 
 ```{r, fig.height=2.5}
 emmip(mod.lm, Simplified_Boundary ~ Treatment, 
-      tlab="",
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
@@ -434,7 +434,7 @@ Tables of counts before and after the four extra observations are removed are be
 ```{r}
 # str(pc_mod)
 table(pc_mod$Year, pc_mod$Native_new_age)
-pc_mod <- pc_mod %>% filter( !( (Native_new_age %in% c("one year native", "two year native")) & Year=="2023-2024" ) )
+pc_mod <- pc_mod %>% filter( !( (Native_new_age %in% c("One-year old native", "Two-year old native")) & Year=="2023-2024" ) )
 table(pc_mod$Year, pc_mod$Native_new_age)
 ```
 
@@ -536,7 +536,7 @@ using the FDR correction to account for multiple tests.
 
 ```{r, fig.height=2.5}
 emmip(mod.lm, Simplified_Boundary ~ Treatment, 
-      tlab="",
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
@@ -594,7 +594,7 @@ in a table.
 
 ```{r, fig.height=2.5}
 emmip(mod.lm, Simplified_Boundary ~ Treatment, 
-      tlab="",
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
@@ -665,7 +665,7 @@ using the FDR correction to account for multiple tests.
 
 ```{r, fig.height=2.5}
 emmip(mod.lm, Native_new_age ~ Treatment, 
-      tlab="",
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()
@@ -724,7 +724,7 @@ in a table.
 
 ```{r, fig.height=2.5}
 emmip(mod.lm, Native_new_age ~ Treatment, 
-      tlab="",
+      tlab=" ",
       xlab="", 
       ylab="Predicted mean number\nof viable seeds", 
       type = "response", CIs = TRUE) + theme_bw()

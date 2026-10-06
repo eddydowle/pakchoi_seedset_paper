@@ -96,7 +96,38 @@ table(pc_sum$Year, pc_sum$Native_new_age) %>% kable(format = "pandoc")
 str(pc_sum, vec.len = 3) 
 ```
 
-# Graph of data
+# Graphs of data
+
+```{r, fig.height=4, fig.width=5.5}
+# table(pc_sum$Simplified_Boundary:pc_sum$Treatment, pc_sum$Year, pc_sum$Type_of_farm)
+set.seed(1989)
+pc_sum %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=1, alpha=1) + 
+  # geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values = c("darkred",
+                                "#F87A70",
+                                "#CD9600",
+                                '#00B832',
+                                "#C77CFF",
+                                "#4F8FFF")) + 
+  theme(
+    panel.spacing = unit(-0.5, "pt")
+  ) +
+  theme(
+  legend.position = "bottom",
+  legend.margin = margin(t = -10),
+  legend.spacing.y = unit(0.1, "cm"),
+  legend.key.height = unit(0.3, "cm")
+) +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  )
+```
 
 ```{r, fig.height=5, fig.width=6}
 # table(pc_sum$Simplified_Boundary:pc_sum$Treatment, pc_sum$Year, pc_sum$Type_of_farm)

@@ -52,6 +52,7 @@ pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heat
   #   TRUE ~ Simplified_Boundary
   # )) %>%
   mutate(Simplified_Boundary=ifelse( (Farm=="Tweed" & Simplified_Boundary=="Control_farm"), "Bare_fence", Simplified_Boundary)) %>%
+  mutate(Native_new_age=ifelse( (Farm=="Tweed" & Native_new_age=="Off-farm bare"), "On-farm bare", Native_new_age)) %>%
   mutate(Year=factor(Year), 
          Farm=factor(Farm),
          Property_Grouping=factor(Property_Grouping),
@@ -102,6 +103,8 @@ pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heat
                         "Terrace View"="Terrace_view")) %>%
   mutate(Year=fct_recode(Year, "2021-2022"="2021_2022", "2022-2023"="2022_2023", "2023-2024"="2023_2024"))
 
+tmp <- pc %>% filter(Farm=="Tweed")
+table(tmp$Simplified_Boundary, tmp$Native_new_age)
 
 dairy_arable <- read_excel("Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx", sheet="Sheet1", range="A3:C55") %>%
   mutate(Farm=str_replace(Farm, "Te_maania", "Te_Maania")) %>%

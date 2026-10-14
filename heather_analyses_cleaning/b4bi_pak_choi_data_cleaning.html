@@ -11,7 +11,7 @@
 
 <meta name="author" content="Heather Jenkins" />
 
-<meta name="date" content="2026-10-01" />
+<meta name="date" content="2026-10-14" />
 
 <title>B4BI Pak Choi data cleaning and preprocessing</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">B4BI Pak Choi data cleaning and
 preprocessing</h1>
 <h4 class="author">Heather Jenkins</h4>
-<h4 class="date">01 October 2026</h4>
+<h4 class="date">14 October 2026</h4>
 
 </div>
 
@@ -1523,6 +1523,7 @@ The garden data is also removed on Brad’s instruction.</p>
   #   TRUE ~ Simplified_Boundary
   # )) %&gt;%
   mutate(Simplified_Boundary=ifelse( (Farm==&quot;Tweed&quot; &amp; Simplified_Boundary==&quot;Control_farm&quot;), &quot;Bare_fence&quot;, Simplified_Boundary)) %&gt;%
+  mutate(Native_new_age=ifelse( (Farm==&quot;Tweed&quot; &amp; Native_new_age==&quot;Off-farm bare&quot;), &quot;On-farm bare&quot;, Native_new_age)) %&gt;%
   mutate(Year=factor(Year), 
          Farm=factor(Farm),
          Property_Grouping=factor(Property_Grouping),
@@ -1573,8 +1574,30 @@ The garden data is also removed on Brad’s instruction.</p>
                         &quot;Terrace View&quot;=&quot;Terrace_view&quot;)) %&gt;%
   mutate(Year=fct_recode(Year, &quot;2021-2022&quot;=&quot;2021_2022&quot;, &quot;2022-2023&quot;=&quot;2022_2023&quot;, &quot;2023-2024&quot;=&quot;2023_2024&quot;))
 
-
-dairy_arable &lt;- read_excel(&quot;Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx&quot;, sheet=&quot;Sheet1&quot;, range=&quot;A3:C55&quot;) %&gt;%
+tmp &lt;- pc %&gt;% filter(Farm==&quot;Tweed&quot;)
+table(tmp$Simplified_Boundary, tmp$Native_new_age)</code></pre>
+<pre><code>##               
+##                Old native Three-year old native Two-year old native
+##   Old native            0                     0                   0
+##   New native            0                    47                  52
+##   Bare fence            0                     0                   0
+##   Control farm          0                     0                   0
+##   Garden                0                     0                   0
+##               
+##                One-year old native On-farm bare fence Off-farm bare fence
+##   Old native                     0                  0                   0
+##   New native                    13                  0                   0
+##   Bare fence                     0                 96                   0
+##   Control farm                   0                  0                   0
+##   Garden                         0                  0                   0
+##               
+##                Garden
+##   Old native        0
+##   New native        0
+##   Bare fence        0
+##   Control farm      0
+##   Garden            0</code></pre>
+<pre class="r"><code>dairy_arable &lt;- read_excel(&quot;Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx&quot;, sheet=&quot;Sheet1&quot;, range=&quot;A3:C55&quot;) %&gt;%
   mutate(Farm=str_replace(Farm, &quot;Te_maania&quot;, &quot;Te_Maania&quot;)) %&gt;%
   mutate(Farm=str_replace(Farm, &quot;Terrace_view&quot;, &quot;Terrace_View&quot;)) %&gt;%
   mutate(Farm=factor(str_replace(Farm, &quot;_&quot;, &quot; &quot;)), Simplified_Boundary=factor(str_replace(Simplified_Boundary, &quot;_&quot;, &quot; &quot;)),

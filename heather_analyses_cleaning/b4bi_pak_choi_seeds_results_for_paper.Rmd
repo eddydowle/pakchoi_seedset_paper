@@ -3,14 +3,14 @@ title: "B4BI Pak Choi Seed Data Graphs and Models for paper"
 author: "Heather Jenkins"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
-  html_document:
-    toc: true
-    toc_depth: 3
-    toc_float: true
+  word_document:
 ---
-<!-- output: -->
-<!--   word_document: -->
 
+<!-- output: -->
+<!--   html_document: -->
+<!--     toc: true -->
+<!--     toc_depth: 3 -->
+<!--     toc_float: true -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.width=6, fig.height=3, dpi=600, warning=FALSE, message=FALSE, echo=FALSE)
@@ -359,6 +359,142 @@ contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
 ## Graph of data with model predictions
 
 ```{r, fig.height=5, fig.width=7}
+preddata <- pc_mod %>% dplyr::select(
+  Treatment,
+  Boundary_type,
+  Type_of_farm, 
+  Year,
+  Farm,
+  Mean_seeds_viable
+)
+
+emm_ci <- emm %>% as.data.frame() %>% 
+  rename(Predicted_mean=emmean) %>%
+  dplyr::select(-SE, -df) 
+
+# emm_ci %>% kable(format="pandoc", digits=3)
+
+closed <- pc_sum %>% 
+  filter(Treatment=="Closed") %>% 
+  dplyr::select(Treatment, Boundary_type, Type_of_farm, Year, Farm, Mean_seeds_viable) 
+```
+
+```{r, fig.height=5, fig.width=7}
+set.seed(4)
+preddata %>% 
+  rbind(closed) %>%
+  ggplot(aes(x=Type_of_farm:Treatment, y=Mean_seeds_viable, color=Boundary_type:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=0.8, color="grey80") + 
+  geom_point(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm), size = 2, data = emm_ci) +
+  geom_line(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm, group=Type_of_farm:Boundary_type:Year), 
+            linewidth = 0.5, linetype = "21", data = emm_ci) + # 2 is sha length and 1 is gap size
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.5, data = emm_ci) + 
+  facet_grid(Year~Boundary_type) + 
+  theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = my_colors)+
+  theme(legend.position = "none") +
+  theme(
+    panel.spacing = unit(0, "pt") # Might need -0.5 for html
+  ) +
+  scale_y_continuous(limits = c(0, 26), breaks = seq(0, 25, by=5)) +
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))  +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black", size=10) 
+  ) +
+  scale_x_discrete(labels = c(
+    rep(c("HP", "Open", "Closed"), 2) 
+  )) +
+  annotate("text", x = 2, y = -Inf, label = "Cropping",
+           vjust = 5.5, size=3.4) +
+  annotate("text", x = 5, y = -Inf, label = "Dairy",
+           vjust = 5.5, size=3.4) +
+  coord_cartesian(clip = "off") +
+  theme(
+    axis.title.x = element_blank(),
+    plot.margin = margin(b = 18, l=4)
+  )
+
+set.seed(4)
+preddata %>% 
+  rbind(closed) %>%
+  ggplot(aes(x=Type_of_farm:Treatment, y=Mean_seeds_viable, color=Boundary_type:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=0.8, color="grey70") + 
+  geom_point(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm), size = 2, data = emm_ci) +
+  geom_line(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm, group=Type_of_farm:Boundary_type:Year), 
+            linewidth = 0.5, linetype = "31", data = emm_ci) + # 2 is sha length and 1 is gap size
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.5, data = emm_ci) + 
+  facet_grid(Year~Boundary_type) + 
+  theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = my_colors)+
+  theme(legend.position = "none") +
+  theme(
+    panel.spacing = unit(0, "pt") # Might need -0.5 for html
+  ) +
+  scale_y_continuous(limits = c(0, 26), breaks = seq(0, 25, by=5)) +
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))  +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black", size=10) 
+  ) +
+  scale_x_discrete(labels = c(
+    rep(c("HP", "Open", "Closed"), 2) 
+  )) +
+  annotate("text", x = 2, y = -Inf, label = "Cropping",
+           vjust = 5.5, size=3.4) +
+  annotate("text", x = 5, y = -Inf, label = "Dairy",
+           vjust = 5.5, size=3.4) +
+  coord_cartesian(clip = "off") +
+  theme(
+    axis.title.x = element_blank(),
+    plot.margin = margin(b = 18, l=4)
+  )
+```
+
+```{r, fig.height=4, fig.width=7}
+set.seed(4)
+preddata %>% 
+  rbind(closed) %>%
+  ggplot(aes(x=Type_of_farm:Treatment, y=Mean_seeds_viable, color=Boundary_type:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=0.8, color="grey75") + 
+  geom_point(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm), size = 2, data = emm_ci) +
+  geom_line(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm, group=Type_of_farm:Boundary_type:Year), 
+            linewidth = 0.5, linetype = "22", data = emm_ci) + # 2 is sha length and 1 is gap size
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.5, data = emm_ci) + 
+  facet_grid(Year~Boundary_type) + 
+  theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = my_colors)+
+  theme(legend.position = "none") +
+  theme(
+    panel.spacing = unit(0, "pt") # Might need -0.5 for html
+  ) +
+  scale_y_continuous(limits = c(0, 26), breaks = seq(0, 25, by=5)) +
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))  +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black", size=10) 
+  ) +
+  scale_x_discrete(labels = c(
+    rep(c("HP", "Open", "Closed"), 2) 
+  )) +
+  annotate("text", x = 2, y = -Inf, label = "Cropping",
+           vjust = 5.5, size=3.4) +
+  annotate("text", x = 5, y = -Inf, label = "Dairy",
+           vjust = 5.5, size=3.4) +
+  coord_cartesian(clip = "off") +
+  theme(
+    axis.title.x = element_blank(),
+    plot.margin = margin(b = 18, l =4)
+  )
+```
+
+
+<!-- Previous figure options codes below. -->
+
+```{r, fig.height=5, fig.width=7, eval=FALSE}
 preddata <- pc_mod %>% dplyr::select(
   Treatment,
   Boundary_type,

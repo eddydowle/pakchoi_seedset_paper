@@ -11,7 +11,7 @@
 
 <meta name="author" content="Heather Jenkins" />
 
-<meta name="date" content="2026-10-14" />
+<meta name="date" content="2026-10-29" />
 
 <title>B4BI Pak Choi data cleaning and preprocessing</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">B4BI Pak Choi data cleaning and
 preprocessing</h1>
 <h4 class="author">Heather Jenkins</h4>
-<h4 class="date">14 October 2026</h4>
+<h4 class="date">29 October 2026</h4>
 
 </div>
 
@@ -1574,30 +1574,10 @@ The garden data is also removed on Brad’s instruction.</p>
                         &quot;Terrace View&quot;=&quot;Terrace_view&quot;)) %&gt;%
   mutate(Year=fct_recode(Year, &quot;2021-2022&quot;=&quot;2021_2022&quot;, &quot;2022-2023&quot;=&quot;2022_2023&quot;, &quot;2023-2024&quot;=&quot;2023_2024&quot;))
 
-tmp &lt;- pc %&gt;% filter(Farm==&quot;Tweed&quot;)
-table(tmp$Simplified_Boundary, tmp$Native_new_age)</code></pre>
-<pre><code>##               
-##                Old native Three-year old native Two-year old native
-##   Old native            0                     0                   0
-##   New native            0                    47                  52
-##   Bare fence            0                     0                   0
-##   Control farm          0                     0                   0
-##   Garden                0                     0                   0
-##               
-##                One-year old native On-farm bare fence Off-farm bare fence
-##   Old native                     0                  0                   0
-##   New native                    13                  0                   0
-##   Bare fence                     0                 96                   0
-##   Control farm                   0                  0                   0
-##   Garden                         0                  0                   0
-##               
-##                Garden
-##   Old native        0
-##   New native        0
-##   Bare fence        0
-##   Control farm      0
-##   Garden            0</code></pre>
-<pre class="r"><code>dairy_arable &lt;- read_excel(&quot;Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx&quot;, sheet=&quot;Sheet1&quot;, range=&quot;A3:C55&quot;) %&gt;%
+# tmp &lt;- pc %&gt;% filter(Farm==&quot;Tweed&quot;)
+# table(tmp$Simplified_Boundary, tmp$Native_new_age)
+
+dairy_arable &lt;- read_excel(&quot;Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx&quot;, sheet=&quot;Sheet1&quot;, range=&quot;A3:C55&quot;) %&gt;%
   mutate(Farm=str_replace(Farm, &quot;Te_maania&quot;, &quot;Te_Maania&quot;)) %&gt;%
   mutate(Farm=str_replace(Farm, &quot;Terrace_view&quot;, &quot;Terrace_View&quot;)) %&gt;%
   mutate(Farm=factor(str_replace(Farm, &quot;_&quot;, &quot; &quot;)), Simplified_Boundary=factor(str_replace(Simplified_Boundary, &quot;_&quot;, &quot; &quot;)),
@@ -1636,6 +1616,10 @@ str(pc)</code></pre>
 ##  $ Seed inviable           : num [1:4315] 0 0 1 0 0 0 0 0 0 0 ...
 ##  $ Native_new_age          : Factor w/ 6 levels &quot;Old native&quot;,&quot;Three-year old native&quot;,..: 5 5 5 5 5 5 5 6 6 6 ...
 ##  $ Type_of_farm            : Factor w/ 2 levels &quot;Arable&quot;,&quot;Dairy&quot;: 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
+<pre class="r"><code># pc %&gt;%
+#   summarise(across(everything(), ~ sum(is.na(.)))) %&gt;%
+#   pivot_longer(everything(), names_to = &quot;Column name&quot;, values_to = &quot;Number of missing values&quot;) %&gt;%
+#   kable(format=&quot;pandoc&quot;)</code></pre>
 <p>This data is saved.</p>
 <pre class="r"><code>save(pc, file=&quot;Cleaned_datasets/pc_seed_data_cleaned.rda&quot;)
 write_csv(pc, file=&quot;Cleaned_datasets/pc_seed_data_cleaned.csv&quot;)
@@ -1668,20 +1652,21 @@ would have the same weight in the mean.</li>
 </ul>
 <pre class="r"><code>pc_sum &lt;- pc %&gt;% 
   group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep) %&gt;% 
-  summarise(Mean_seeds_viable=mean(`Seed viable`)) %&gt;%
+  summarise(Mean_seeds_viable=mean(`Seed viable`), Number_of_Pods_seeds_counted = n()) %&gt;%
   group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment) %&gt;% 
-  summarise(Mean_seeds_viable=mean(Mean_seeds_viable)) %&gt;%
+  summarise(Mean_seeds_viable=mean(Mean_seeds_viable), Number_of_Pods_seeds_counted=sum(Number_of_Pods_seeds_counted)) %&gt;%
   ungroup()
 
 str(pc_sum)</code></pre>
-<pre><code>## tibble [319 × 7] (S3: tbl_df/tbl/data.frame)
-##  $ Year               : Factor w/ 3 levels &quot;2021-2022&quot;,&quot;2022-2023&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ Farm               : Factor w/ 19 levels &quot;Ahuriri&quot;,&quot;Ashford 1&quot;,..: 1 1 1 1 1 2 2 2 2 2 ...
-##  $ Type_of_farm       : Factor w/ 2 levels &quot;Arable&quot;,&quot;Dairy&quot;: 1 1 1 1 1 2 2 2 2 2 ...
-##  $ Simplified_Boundary: Factor w/ 4 levels &quot;Old native&quot;,&quot;New native&quot;,..: 2 2 2 4 4 2 2 2 4 4 ...
-##  $ Native_new_age     : Factor w/ 6 levels &quot;Old native&quot;,&quot;Three-year old native&quot;,..: 4 4 4 6 6 4 4 4 6 6 ...
-##  $ Treatment          : Factor w/ 3 levels &quot;Hand pollinated&quot;,..: 1 2 3 1 2 1 2 3 1 2 ...
-##  $ Mean_seeds_viable  : num [1:319] 16.2 14.8 1 16.2 10.4 ...</code></pre>
+<pre><code>## tibble [319 × 8] (S3: tbl_df/tbl/data.frame)
+##  $ Year                        : Factor w/ 3 levels &quot;2021-2022&quot;,&quot;2022-2023&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Farm                        : Factor w/ 19 levels &quot;Ahuriri&quot;,&quot;Ashford 1&quot;,..: 1 1 1 1 1 2 2 2 2 2 ...
+##  $ Type_of_farm                : Factor w/ 2 levels &quot;Arable&quot;,&quot;Dairy&quot;: 1 1 1 1 1 2 2 2 2 2 ...
+##  $ Simplified_Boundary         : Factor w/ 4 levels &quot;Old native&quot;,&quot;New native&quot;,..: 2 2 2 4 4 2 2 2 4 4 ...
+##  $ Native_new_age              : Factor w/ 6 levels &quot;Old native&quot;,&quot;Three-year old native&quot;,..: 4 4 4 6 6 4 4 4 6 6 ...
+##  $ Treatment                   : Factor w/ 3 levels &quot;Hand pollinated&quot;,..: 1 2 3 1 2 1 2 3 1 2 ...
+##  $ Mean_seeds_viable           : num [1:319] 16.2 14.8 1 16.2 10.4 ...
+##  $ Number_of_Pods_seeds_counted: int [1:319] 10 13 8 10 7 9 8 3 11 9 ...</code></pre>
 <p>This data is saved.</p>
 <pre class="r"><code>save(pc_sum, file=&quot;Cleaned_datasets/pc_seed_data_summarised_cleaned.rda&quot;)
 write_csv(pc_sum, file=&quot;Cleaned_datasets/pc_seed_data_summarised_cleaned.csv&quot;)</code></pre>

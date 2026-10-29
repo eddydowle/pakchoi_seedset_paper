@@ -103,8 +103,8 @@ pc <- read_excel("Excel_files_from_Brad/Copy of B4BI_Pak_choi_seed_data_for_Heat
                         "Terrace View"="Terrace_view")) %>%
   mutate(Year=fct_recode(Year, "2021-2022"="2021_2022", "2022-2023"="2022_2023", "2023-2024"="2023_2024"))
 
-tmp <- pc %>% filter(Farm=="Tweed")
-table(tmp$Simplified_Boundary, tmp$Native_new_age)
+# tmp <- pc %>% filter(Farm=="Tweed")
+# table(tmp$Simplified_Boundary, tmp$Native_new_age)
 
 dairy_arable <- read_excel("Excel_files_from_Brad/Farm type and treatment for pak choi Heather update.xlsx", sheet="Sheet1", range="A3:C55") %>%
   mutate(Farm=str_replace(Farm, "Te_maania", "Te_Maania")) %>%
@@ -128,6 +128,11 @@ pc <- pc %>% left_join(dairy_arable, by=c("Farm", "Simplified_Boundary")) %>%
 
 rm(dairy_arable)
 str(pc)
+
+# pc %>%
+#   summarise(across(everything(), ~ sum(is.na(.)))) %>%
+#   pivot_longer(everything(), names_to = "Column name", values_to = "Number of missing values") %>%
+#   kable(format="pandoc")
 ```
 
 This data is saved.
@@ -152,9 +157,9 @@ write_csv(pc, file="Cleaned_datasets/pc_seed_data_cleaned.csv")
 ```{r}
 pc_sum <- pc %>% 
   group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep) %>% 
-  summarise(Mean_seeds_viable=mean(`Seed viable`)) %>%
+  summarise(Mean_seeds_viable=mean(`Seed viable`), Number_of_Pods_seeds_counted = n()) %>%
   group_by(Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment) %>% 
-  summarise(Mean_seeds_viable=mean(Mean_seeds_viable)) %>%
+  summarise(Mean_seeds_viable=mean(Mean_seeds_viable), Number_of_Pods_seeds_counted=sum(Number_of_Pods_seeds_counted)) %>%
   ungroup()
 
 str(pc_sum)

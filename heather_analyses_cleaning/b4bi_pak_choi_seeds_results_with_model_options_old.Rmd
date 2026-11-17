@@ -1,0 +1,600 @@
+---
+title: "B4BI Pak Choi Seed Data Graphs and Models for paper"
+author: "Heather Jenkins"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+<!-- output: -->
+<!--   word_document: -->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=3, dpi=600, warning=FALSE, message=FALSE, echo=FALSE)
+options(scipen=999)
+library(lme4)
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(dplyr)
+library(car)
+library(emmeans)
+library(predictmeans)
+library(stringr)
+library(GGally)
+library(gridExtra)
+library(pander)
+library(kableExtra)
+library(DHARMa)
+panderOptions('table.alignment.default', function(df)
+    ifelse(sapply(df, is.numeric), 'left', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+options(knitr.kable.NA = '')
+```
+
+
+# Overview
+
+This document contains the final analysis and graphs of the pak choi seed data.
+
+This analysis was performed using  `r version$version.string`. The *tidyverse*
+suite of packages was used for data manipulation and visualisation. The
+*emmeans* package was used for model predictions. 
+The *DHARMa* package was used to help assess model diagnostics and goodness-of-fit.
+
+The predicted 95% confidence intervals and post-hoc pairwise comparison p-values
+are adjusted using the FDR correction to account for multiple tests.
+
+# Data used (how it was summarised)
+
++ The original data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment, Rep.     
++ The mean of the `Seed viable` is taken. This is the mean across all the pods for each rep. Note the number of pods for each Rep was quite variable.  
++ Then the data is grouped by Year, Farm, Type_of_farm, Simplified_Boundary, Native_new_age, Treatment.  
++ The mean seeds viable is calculated, so we get a mean over the Reps.  
++ For each Year, Farm and Simplified_Boundary combination we have a mean seed counts for each treatment where each rep has the same weight in the mean.  
++ If we didn't do the means with the two group_by steps then each pod would have the same weight in the mean.  
++ I've assumed that the number of pods is a feature of the pak choi plants and nothing to do with the Treatments.  
+
+<br>
+
+```{r}
+load(file="Cleaned_datasets/pc_seed_data_summarised_cleaned.rda")
+  
+pc_sum <- pc_sum %>% mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"),
+                            Simplified_Boundary=fct_recode(Simplified_Boundary, 
+                                        "Old native SNH"="Old native",
+                                        "New native SNH"="New native",
+                                        "On-farm bare fence"="Bare fence",
+                                        "Off-farm bare fence"="Control farm"
+                                        )) %>%
+  mutate(Mean_seeds_viable_rounded = round(Mean_seeds_viable, 0))
+
+str(pc_sum, vec.len = 3) 
+```
+
+We next remove the data with 'one year native' and 'two year native' in 2023-2024 removed. So 'New native' only has
+
++ One year old in 2021-2022  
++ Two year old in 2022-2023  
++ Three year old in 2023-2024  
+
+Note that is data is all from Arable farms (Garrickfield and Limbrick), and there are only 4 observations removed.
+
+Tables of counts before and after the observations are removed are below:
+
+```{r}
+# str(pc_mod)
+table(pc_sum$Year, pc_sum$Native_new_age) %>% kable(format = "pandoc")
+pc_sum <- pc_sum %>% filter( !( (Native_new_age %in% c("One-year old native", "Two-year old native")) & Year=="2023-2024" ) )
+table(pc_sum$Year, pc_sum$Native_new_age) %>% kable(format = "pandoc")
+
+str(pc_sum, vec.len = 3) 
+```
+
+# Graphs of data
+
+```{r, fig.height=4, fig.width=5.5}
+# table(pc_sum$Simplified_Boundary:pc_sum$Treatment, pc_sum$Year, pc_sum$Type_of_farm)
+set.seed(1989)
+pc_sum %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=1, alpha=1) + 
+  # geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values = c("darkred",
+                                "#F87A70",
+                                "#CD9600",
+                                '#00B832',
+                                "#C77CFF",
+                                "#4F8FFF")) + 
+  theme(
+    panel.spacing = unit(-0.5, "pt")
+  ) +
+  theme(
+  legend.position = "bottom",
+  legend.margin = margin(t = -10),
+  legend.spacing.y = unit(0.1, "cm"),
+  legend.key.height = unit(0.3, "cm")
+) +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  )
+```
+
+```{r, fig.height=5, fig.width=6}
+# table(pc_sum$Simplified_Boundary:pc_sum$Treatment, pc_sum$Year, pc_sum$Type_of_farm)
+set.seed(1989)
+pc_sum %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Type_of_farm)) + 
+  geom_jitter(height=0, width=0.3, size=1, alpha=0.5) + 
+  # geom_point(aes(y = mean_viable), size=2, color=1, data = pc_stats) +
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  theme(axis.text.x = element_text(angle=20, hjust=1.0, vjust=1.0)) +  
+  scale_color_manual(values = c("chocolate",
+                                "#21908CFF",
+                                "#FDE725FF",
+                                '#3B528BFF',
+                                "#5DC863FF",
+                                "#440154FF")) + 
+  theme(
+  legend.position = "bottom",
+  legend.margin = margin(t = -10),
+  legend.spacing.y = unit(0.1, "cm"),
+  legend.key.height = unit(0.3, "cm")
+) +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  )
+```
+
+# Modelling comments
+
++ We remove the Closed treatment from the data.
++ There is no data for Arable farms, Off-farm bare fence, 2021-22, Closed.  
++ The Closed is a control and we can see it "worked" in the graph above.  
++ We fit a complicated model initially and then 3 simplified versions.
+
+```{r}
+pc_mod <- pc_sum %>% 
+  filter(Treatment != "Closed") %>% 
+  droplevels()
+```
+
+# Model 0: LMM with 4-way interaction (Y x T_of_F x T x S_B))
+
+## Description
+
+We fit linear mixed-effects models to the data. The response is
+Mean_seeds_viable. The fixed-effects are Year, Type_of_farm, Treatment and
+Simplified_Boundary plus their four-way interaction. There is also a random
+effect for Farm. The residuals were inspected visually and the
+simulateResiduals() function from the DHARMa package was used. There was no
+evidence of non-normality, dispersion or outliers.
+
+## Diagnostics and ANOVA table
+
+```{r, fig.width=9, fig.height=4}
+# shapiro.test(pc_mod$Mean_seeds_viable) # okay
+# hist(pc_mod$Mean_seeds_viable, breaks=30)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year/Farm), data=pc_mod)
+# The model below is the same
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year) + (1|Year:Farm), data=pc_mod)
+# Tried adding Simplified_Buundary and Treatment to the REs eg (1 + Simplified_Boundary|Year:Farm) but got singular boundary.
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year) + (1|Farm), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Farm), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Farm/Year), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary*Year + (1|Farm), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary*Year + (1|Farm:Simplified_Boundary), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Type_of_farm*Treatment*Simplified_Boundary*Year + (1|Farm/Simplified_Boundary), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+simres <- simulateResiduals(fittedModel = mod.lm)
+plot(simres)
+# rm(simres)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+```
+
+<br>
+
+The four-way and all three-way interactions are not significant. Type_of_farm
+is not significant in any of the interactions or as a main effect. Year is only
+significant as a main effect. The two-way interaction of Treatment and
+Simplified_Boundary is significant. The other two-way interactions are not
+significant.
+
+# Model 1: LMM with 2-way interaction (T x S_B) and main-effect (Y)
+
+## Description
+
+We only include the significant terms, the 2-way interaction of Treatment and Simplified_Boundary, and the main-effect of Year.
+
+## Diagnostics and ANOVA table
+
+```{r, fig.width=9, fig.height=4}
+# AIC(mod.lm); BIC(mod.lm)
+mod.lm <- lmer(Mean_seeds_viable ~ Year + Treatment*Simplified_Boundary + (1|Farm), data=pc_mod)
+# Has 5 outliers
+# AIC(mod.lm); BIC(mod.lm) # Mixed result but BIC down more than AIC is up so all good.
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+simres <- simulateResiduals(fittedModel = mod.lm)
+plot(simres) 
+# rm(simres)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+```
+
+There are 5 outliers (ignored for now).
+
+## Model predictions
+
+```{r}
+emmip(mod.lm, Simplified_Boundary ~ Treatment | Year, 
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+# emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment:Year, adjust="fdr") 
+# emm %>% as.data.frame() %>% 
+#   dplyr::select(-SE, -df) %>%
+#   rename(`Predicted mean`=emmean) %>%
+#   kable(format="pandoc", digits=1)
+# 
+# contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+#   as.data.frame() %>% 
+#   dplyr::select(-SE, -df) %>%
+#   kable(format="pandoc", digits=3)
+
+emmip(mod.lm, Simplified_Boundary ~ Treatment,
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emm <- emmeans(mod.lm, ~Treatment|Simplified_Boundary, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emmip(mod.lm, ~Year,
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Year, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+# emm %>% as.data.frame() %>% 
+#   dplyr::select(-SE, -df) %>%
+#   rename(`Predicted mean`=emmean) %>%
+#   kable(format="pandoc", digits=1)
+
+```
+
+## Graph of data with model predictions
+
+```{r, fig.height=4.5, fig.width=6}
+preddata <- pc_mod %>% dplyr::select(
+  Treatment,
+  Simplified_Boundary,
+  Year,
+  Farm,
+  Mean_seeds_viable
+)
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary:Treatment|Year, adjust="fdr") 
+emm_ci <- emm %>% as.data.frame() %>% 
+  rename(Predicted_mean=emmean) %>%
+  dplyr::select(-SE, -df) 
+
+# emm_ci %>% kable(format="pandoc", digits=3)
+
+set.seed(1989)
+preddata %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Simplified_Boundary)) + 
+  geom_jitter(height=0, width=0.2, size=0.5, alpha=0.2) + 
+  geom_point(aes(y = Predicted_mean, color=Treatment:Simplified_Boundary), size = 1.4, data = emm_ci) +
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.4, data = emm_ci) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = c("chocolate",
+                                '#3B528BFF',
+                                "darkgreen",  
+                                "#440154FF",
+                                "#DABF4AFF",
+                                "#21908CFF",
+                                "#5DC863FF",
+                                "darkred"
+                                )) + 
+  theme(legend.position = "none") +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  ) 
+```
+
+# Model 2: LMM with 2-way interaction (T x S_B) and main-effect (Y) and 5 outliers removed
+
+## Description
+
+The model is the same as model 1 except the five outliers and removed from the data. The outliers are:
+
+```{r}
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- lmer(Mean_seeds_viable ~ Year + Treatment*Simplified_Boundary + (1|Farm), data=pc_mod)
+# Has 5 outliers
+# AIC(mod.lm); BIC(mod.lm) # Mixed result but BIC down more than AIC is up so all good.
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+simres <- simulateResiduals(fittedModel = mod.lm)
+#  plot(simres)
+# out <- testOutliers(simres)
+# out
+# plotResiduals(simres, form = 1:nrow(pc_mod))
+# which(simres$scaledResiduals < 0.008 | simres$scaledResiduals > 0.992)/214
+tmp <- pc_mod[which(simres$scaledResiduals < 0.008 | simres$scaledResiduals > 0.992), ]
+
+tmp  %>% 
+  dplyr::select(-Mean_seeds_viable_rounded) %>%
+  kable(format="pandoc", digits=1)
+rm(tmp)
+
+pc_mod_sub <- pc_mod[-which(simres$scaledResiduals < 0.008 | simres$scaledResiduals > 0.992), ]
+```
+
+## Diagnostics and ANOVA table
+
+```{r, fig.width=9, fig.height=4}
+mod.lm <- lmer(Mean_seeds_viable ~ Year + Treatment*Simplified_Boundary + (1|Farm), data=pc_mod_sub)
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+ simres <- simulateResiduals(fittedModel = mod.lm)
+ plot(simres)
+ 
+# rm(simres)
+kable(Anova(mod.lm),digits=6, format = "pandoc")
+```
+
+## Model prediction
+
+```{r}
+emmip(mod.lm, Simplified_Boundary ~ Treatment | Year, 
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment:Year, adjust="fdr") 
+# emm %>% as.data.frame() %>% 
+#   dplyr::select(-SE, -df) %>%
+#   rename(`Predicted mean`=emmean) %>%
+#   kable(format="pandoc", digits=1)
+
+# contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+#   as.data.frame() %>% 
+#   dplyr::select(-SE, -df) %>%
+#   kable(format="pandoc", digits=3)
+
+emmip(mod.lm, Simplified_Boundary ~ Treatment,
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emm <- emmeans(mod.lm, ~Treatment|Simplified_Boundary, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emmip(mod.lm, ~Year,
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Year, adjust="fdr") 
+
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+```
+
+## Graph of data with model predictions
+
+```{r, fig.height=4.5, fig.width=6}
+preddata_sub <- pc_mod_sub %>% dplyr::select(
+  Treatment,
+  Simplified_Boundary,
+  Year,
+  Farm,
+  Mean_seeds_viable
+)
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary:Treatment|Year, adjust="fdr") 
+emm_ci <- emm %>% as.data.frame() %>% 
+  rename(Predicted_mean=emmean) %>%
+  dplyr::select(-SE, -df) 
+
+# emm_ci %>% kable(format="pandoc", digits=3)
+
+set.seed(1989)
+preddata_sub %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Simplified_Boundary)) + 
+  geom_jitter(height=0, width=0.2, size=0.5, alpha=0.2) + 
+  geom_point(aes(y = Predicted_mean, color=Treatment:Simplified_Boundary), size = 1.4, data = emm_ci) +
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.4, data = emm_ci) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = c("chocolate",
+                                '#3B528BFF',
+                                "darkgreen",  
+                                "#440154FF",
+                                # "#FDE725FF",
+                                "#DABF4AFF",
+                                "#21908CFF",
+                                "#5DC863FF",
+                                "darkred"
+                                )) + 
+  theme(legend.position = "none") +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  ) 
+```
+
+# Model 3: LMM with 3-way interaction (T x S_B x Y)
+
+## Description
+
+We go back to Model 0 and only remove Type_of_farm, so we have the 3-way interaction of Year, Treatment and Simplified_Boundary.
+
+## Diagnostics and ANOVA table
+
+```{r, fig.width=9, fig.height=4}
+mod.lm <- lmer(Mean_seeds_viable ~ Treatment*Simplified_Boundary*Year + (1|Farm), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+ simres <- simulateResiduals(fittedModel = mod.lm)
+ plot(simres)
+# rm(simres)
+kable(Anova(mod.lm),digits=4, format = "pandoc")
+```
+
+## Model predictions
+
+```{r}
+emmip(mod.lm, Simplified_Boundary ~ Treatment | Year,
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+emmip(mod.lm, Simplified_Boundary ~ Treatment,
+      tlab=" ",
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust="fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary|Treatment, adjust="fdr") 
+
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emm <- emmeans(mod.lm, ~Treatment|Simplified_Boundary, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+
+emmip(mod.lm, ~Year,
+      xlab="", 
+      ylab="Predicted mean number\nof viable seeds", 
+      type = "response", CIs = TRUE, adjust = "fdr") + theme_bw()
+
+emm <- emmeans(mod.lm, ~Year, adjust="fdr") 
+contrast(emm, method="pairwise", adjust="fdr", type = "response") %>%
+  as.data.frame() %>% 
+  dplyr::select(-SE, -df) %>%
+  kable(format="pandoc", digits=3)
+```
+
+## Graph of data with model predictions
+
+```{r, fig.height=4.5, fig.width=6}
+preddata <- pc_mod %>% dplyr::select(
+  Treatment,
+  Simplified_Boundary,
+  Year,
+  Farm,
+  Mean_seeds_viable
+)
+
+emm <- emmeans(mod.lm, ~Simplified_Boundary:Treatment|Year, adjust="fdr") 
+emm_ci <- emm %>% as.data.frame() %>% 
+  rename(Predicted_mean=emmean) %>%
+  dplyr::select(-SE, -df) 
+
+set.seed(1989)
+preddata %>% 
+  ggplot(aes(x=Treatment, y=Mean_seeds_viable, color=Treatment:Simplified_Boundary)) + 
+  geom_jitter(height=0, width=0.2, size=0.5, alpha=0.2) + 
+  geom_point(aes(y = Predicted_mean, color=Treatment:Simplified_Boundary), size = 1.4, data = emm_ci) +
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.4, data = emm_ci) + 
+  facet_grid(Year~Simplified_Boundary) + theme_bw(base_size=11) +
+  labs(x="", y="Mean number of viable seeds", color="") +
+  scale_color_manual(values = c("chocolate",
+                                '#3B528BFF',
+                                "darkgreen",  
+                                "#440154FF",
+                                # "#FDE725FF",
+                                "#DABF4AFF",
+                                "#21908CFF",
+                                "#5DC863FF",
+                                "darkred"
+                                )) + 
+  theme(legend.position = "none") +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black")
+  ) 
+```
+
+```{r, eval=FALSE}
+# Poisson generalised linear mixed-effects model (Poisson GLMM)
+
+# mod.lm <- glmer(Mean_seeds_viable_rounded ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year/Farm), family = poisson(link="identity"), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- glmer(Mean_seeds_viable_rounded ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year) + (1|Farm), family = poisson(link="identity"), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- glmer(Mean_seeds_viable_rounded ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Farm), family = poisson(link="identity"), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+mod.lm <- glmer(Mean_seeds_viable_rounded ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Year), family = poisson(link="identity"), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# mod.lm <- glmer(Mean_seeds_viable_rounded ~ Type_of_farm*Treatment*Simplified_Boundary + (1|Farm/Year), family = poisson(link="identity"), data=pc_mod)
+# AIC(mod.lm); BIC(mod.lm)
+# residplot(mod.lm, newwd = FALSE)
+# summary(mod.lm)
+simres <- simulateResiduals(fittedModel = mod.lm)
+plot(simres) # Not good
+rm(simres)
+```
+

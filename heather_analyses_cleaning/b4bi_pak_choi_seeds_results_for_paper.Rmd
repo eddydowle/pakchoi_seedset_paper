@@ -1,5 +1,5 @@
 ---
-title: "B4BI Pak Choi Seed Data Model and Graphs for Paper"
+title: "B4BI Pak Choi Seed Data: Model and Graphs for Paper"
 author: "Heather Jenkins"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
@@ -161,7 +161,9 @@ pc %>%
 # table(pc$Year, pc$Boundary_type:pc$Type_of_farm, pc$Treatment)
 ```
 
-# Comments about modelling with the full datasetG
+# Comments about modelling with the full dataset
+
+<br>
 
 + We remove the Closed treatment from the data.
 + There is no data for Arable/Cropping farms, Control farm, 2021-22, Closed.  

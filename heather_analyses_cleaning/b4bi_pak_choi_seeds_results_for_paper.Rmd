@@ -27,6 +27,8 @@ library(stringr)
 library(GGally)
 library(gridExtra)
 library(pander)
+library(multcomp)
+library(multcompView)
 library(kableExtra)
 library(DHARMa)
 panderOptions('table.alignment.default', function(df)
@@ -115,7 +117,7 @@ pc <- pc %>% mutate(Treatment=fct_recode(Treatment, "HP"="Hand pollinated"),
 str(pc, vec.len = 2) 
 ```
 
-As we did above, we remove the data with 'one-year old new SNH' and 'two-year old new SNH' in 2023-24. 
+We remove the data with 'one-year old new SNH' and 'two-year old new SNH' in 2023-24. 
 
 Tables of counts before and after the observations are removed are below:
 
@@ -182,7 +184,7 @@ pc_mod <- pc %>%
 We fit a negative-binomial (nbinom1) generalised linear mixed-effects model to the data.
 The response is Seeds_viable. The fixed-effects are Year, Type_of_farm, Treatment and
 Boundary_type plus their four-way interaction. There are random
-effects for Farm, Site (which is Farm:Boundary_type) and Rep:Treatment:Year nested within
+effects for Site (which is Farm:Boundary_type) and Rep:Treatment:Year nested within
 Site. The last random effect is for each pot (plant?).
 The residuals were inspected visually.
 
@@ -191,16 +193,16 @@ The residuals were inspected visually.
 ```{r, fig.width=9, fig.height=4}
 #shapiro.test(pc_mod$Mean_seeds_viable) # okay
 #hist(pc_mod$Mean_seeds_viable, breaks=30)
-mod.lm <- glmmTMB(Seeds_viable ~ Type_of_farm*Treatment*Boundary_type*Year +  
-                 (1 | Farm) + (1|Site/Rep:Treatment:Year), 
-               family = nbinom1,
-               data=pc_mod)
-# AIC(mod.lm); BIC(mod.lm)
 # mod.lm <- glmmTMB(Seeds_viable ~ Type_of_farm*Treatment*Boundary_type*Year +  
-#                  (1|Site/Rep:Treatment:Year), 
+#                  (1 | Farm) + (1|Site/Rep:Treatment:Year), 
 #                family = nbinom1,
 #                data=pc_mod)
-# AIC(mod.lm); BIC(mod.lm)
+#  AIC(mod.lm); BIC(mod.lm)
+mod.lm <- glmmTMB(Seeds_viable ~ Type_of_farm*Treatment*Boundary_type*Year +
+                 (1|Site/Rep:Treatment:Year),
+               family = nbinom1,
+               data=pc_mod)
+AIC(mod.lm); BIC(mod.lm)
 residplot(mod.lm, newwd = FALSE)
 # summary(mod.lm)
 simres <- simulateResiduals(fittedModel = mod.lm)
@@ -387,7 +389,7 @@ preddata %>%
   theme(
     panel.spacing = unit(0, "pt") # Might need -0.5 for html
   ) +
-  scale_y_continuous(limits = c(0, 40), breaks = seq(0, 40, by=5)) +
+  scale_y_continuous(limits = c(-0.1, 40), breaks = seq(0, 40, by=5)) +
   theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))  +
   theme(
     strip.background = element_blank(),
@@ -477,5 +479,51 @@ preddata %>%
   theme(
     axis.title.x = element_blank(),
     plot.margin = margin(b = 18, l =4)
+  )
+```
+ 
+## Graph of data with model predictions and letters
+
+```{r, fig.height=5, fig.width=7}
+sig_letters <-  cld(emm, adjust = "fdr", Letters = letters) %>% 
+  rename(Predicted_mean=response, lower.CL=asymp.LCL, upper.CL=asymp.UCL) %>%
+  dplyr::select(-SE, -df) 
+
+# geom_text(data = as.data.frame(emm_letters), aes(x = treatment, y = letters_y, label = .group), vjust = -1, color="#0072B2")
+
+set.seed(4)
+preddata %>% 
+  rbind(closed) %>%
+  ggplot(aes(x=Type_of_farm:Treatment, y=Seeds_viable, color=Boundary_type:Type_of_farm)) + 
+  geom_jitter(height=0.1, width=0.3, size=0.25, color="grey70") + 
+  geom_point(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm), size = 2, data = emm_ci) +
+  geom_line(aes(y = Predicted_mean, color=Boundary_type:Type_of_farm, group=Type_of_farm:Boundary_type:Year), 
+            linewidth = 0.5, linetype = "21", data = emm_ci) + # 2 is sha length and 1 is gap size
+  geom_errorbar(aes(y=Predicted_mean, ymin = lower.CL, ymax = upper.CL), width = 0.2, linewidth= 0.5, data = emm_ci) + 
+  facet_grid(Year~Boundary_type) + 
+  theme_bw(base_size=11) +
+  labs(x="", y="Number of viable seeds", color="") +
+  scale_color_manual(values = my_colors)+
+  theme(legend.position = "none") +
+  theme(
+    panel.spacing = unit(0, "pt") # Might need -0.5 for html
+  ) +
+  scale_y_continuous(limits = c(-0.1, 40), breaks = seq(0, 40, by=5)) +
+  theme(axis.text.x = element_text(angle=45, hjust=1, vjust=1))  +
+  theme(:
+    strip.background = element_blank(),
+    strip.text = element_text(colour = "black", size=10) 
+  ) +
+  scale_x_discrete(labels = c(
+    rep(c("HP", "Open", "Closed"), 2) 
+  )) +
+  annotate("text", x = 2, y = -Inf, label = "Cropping",
+           vjust = 5.5, size=3.4) +
+  annotate("text", x = 5, y = -Inf, label = "Dairy",
+           vjust = 5.5, size=3.4) +
+  coord_cartesian(clip = "off") +
+  theme(
+    axis.title.x = element_blank(),
+    plot.margin = margin(b = 18, l=4)
   )
 ```
